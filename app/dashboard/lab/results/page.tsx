@@ -20,7 +20,9 @@ import {
   Download,
   Eye,
   Beaker,
+  ArrowLeft,
 } from "lucide-react"
+import Link from "next/link"
 
 export default function LabResultsPage() {
   const [labOrders, setLabOrders] = useState<any[]>([])
@@ -272,12 +274,20 @@ export default function LabResultsPage() {
   return (
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-7xl mx-auto">
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <TestTube className="h-8 w-8 text-blue-600" />
-            Laboratory Results Management
-          </h1>
-          <p className="text-gray-600">Process test results, generate reports, and track specimens</p>
+        <div className="flex items-center justify-between mb-8">
+          <div>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+              <TestTube className="h-8 w-8 text-blue-600" />
+              Laboratory Results Management
+            </h1>
+            <p className="text-gray-600">Process test results, generate reports, and track specimens</p>
+          </div>
+          <Link href="/dashboard">
+            <Button variant="outline">
+              <ArrowLeft className="h-4 w-4 mr-2" />
+              Back to Dashboard
+            </Button>
+          </Link>
         </div>
 
         <Tabs defaultValue="orders" className="space-y-6">

@@ -171,6 +171,8 @@ export default function DashboardPage() {
         {currentUser.role === "Admin" && <AdminDashboard stats={stats} />}
         {currentUser.role === "Doctor" && <DoctorDashboard stats={stats} />}
         {currentUser.role === "Nurse" && <NurseDashboard stats={stats} />}
+        {currentUser.role === "Lab Technician" && <LabTechDashboard stats={stats} />}
+        {currentUser.role === "Receptionist" && <ReceptionistDashboard stats={stats} />}
         {currentUser.role === "Civil Authority" && <CivilAuthorityDashboard stats={stats} />}
         {currentUser.role === "Data Manager" && <DataManagerDashboard stats={stats} />}
         {currentUser.role === "Patient" && <PatientDashboard user={currentUser} />}
@@ -624,10 +626,10 @@ function NurseDashboard({ stats }: { stats: any }) {
             <CardDescription>View assigned patients</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/patients">
+            <Link href="/dashboard/nurse/assigned-patients">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
                 <Users className="h-4 w-4 mr-2" />
-                View Patients
+                View Assigned Patients
               </Button>
             </Link>
           </CardContent>
@@ -678,7 +680,7 @@ function LabTechDashboard({ stats }: { stats: any }) {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Lab Technician Dashboard</h1>
-        <p className="text-gray-600">Laboratory tests and results</p>
+        <p className="text-gray-600">Laboratory tests and results management</p>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -745,14 +747,14 @@ function ReceptionistDashboard({ stats }: { stats: any }) {
     <div className="space-y-8">
       <div>
         <h1 className="text-3xl font-bold text-gray-900">Receptionist Dashboard</h1>
-        <p className="text-gray-600">Patient registration and appointments</p>
+        <p className="text-gray-600">Patient registration and appointments management</p>
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Plus className="h-5 w-5 text-blue-600" />
+              <UserPlus className="h-5 w-5 text-blue-600" />
               Patient Registration
             </CardTitle>
             <CardDescription>Register new patients</CardDescription>
@@ -760,7 +762,7 @@ function ReceptionistDashboard({ stats }: { stats: any }) {
           <CardContent>
             <Link href="/dashboard/patients/new">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                <Plus className="h-4 w-4 mr-2" />
+                <UserPlus className="h-4 w-4 mr-2" />
                 Register Patient
               </Button>
             </Link>
@@ -798,6 +800,60 @@ function ReceptionistDashboard({ stats }: { stats: any }) {
               <Button className="w-full bg-purple-600 hover:bg-purple-700">
                 <FileText className="h-4 w-4 mr-2" />
                 Verify Insurance
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-orange-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Users className="h-5 w-5 text-orange-600" />
+              Patient Records
+            </CardTitle>
+            <CardDescription>View and manage patient records</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/patients">
+              <Button className="w-full bg-orange-600 hover:bg-orange-700">
+                <Users className="h-4 w-4 mr-2" />
+                View Records
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-red-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-red-600" />
+              Notifications
+            </CardTitle>
+            <CardDescription>View important notifications</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/reception/notifications">
+              <Button className="w-full bg-red-600 hover:bg-red-700">
+                <Bell className="h-4 w-4 mr-2" />
+                View Notifications
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-teal-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileCheck className="h-5 w-5 text-teal-600" />
+              Check-in/Check-out
+            </CardTitle>
+            <CardDescription>Manage patient check-ins and check-outs</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/reception/check-in">
+              <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                <FileCheck className="h-4 w-4 mr-2" />
+                Manage Check-ins
               </Button>
             </Link>
           </CardContent>
