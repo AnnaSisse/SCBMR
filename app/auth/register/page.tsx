@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -20,8 +18,6 @@ export default function RegisterPage() {
     password: "",
     confirmPassword: "",
     role: "",
-    phone: "",
-    department: "",
   })
   const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
@@ -39,56 +35,35 @@ export default function RegisterPage() {
     }
 
     try {
-      // Get existing users
-      const users = JSON.parse(localStorage.getItem("users") || "[]")
+      const response = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          email: formData.email,
+          password: formData.password,
+          role: formData.role,
+        }),
+      })
 
-      // Check if user already exists
-      const existingUser = users.find((u: any) => u.email === formData.email)
-      if (existingUser) {
-        setError("User with this email already exists")
-        setLoading(false)
-        return
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.error || "Registration failed")
       }
 
-      // Special handling for admin registration
-      if (formData.role === "Admin") {
-        const existingAdmin = users.find((u: any) => u.role === "Admin")
-        if (existingAdmin) {
-          setError("Admin account already exists. Only one admin account is allowed.")
-          setLoading(false)
-          return
-        }
-      }
-
-      // Create new user
-      const newUser = {
-        id: Date.now().toString(),
-        name: formData.name,
-        email: formData.email,
-        password: formData.password,
-        role: formData.role,
-        phone: formData.phone,
-        department: formData.role === "Admin" ? "Administration" : formData.department,
-        createdAt: new Date().toISOString(),
-        isActive: true,
-      }
-
-      // Save user
-      users.push(newUser)
-      localStorage.setItem("users", JSON.stringify(users))
-
-      // Auto login
-      localStorage.setItem("currentUser", JSON.stringify(newUser))
-
-      router.push("/dashboard")
-    } catch (err) {
-      setError("Registration failed. Please try again.")
+      // Registration successful, redirect to login
+      router.push("/auth/login?registered=true")
+    } catch (err: any) {
+      setError(err.message || "Registration failed. Please try again.")
     } finally {
       setLoading(false)
     }
   }
 
-  const roles = ["Admin", "Doctor", "Patient", "Nurse", "Lab Technician", "Receptionist"]
+  const roles = ["USER", "ADMIN", "DOCTOR", "NURSE", "PATIENT", "RECEPTION", "LAB", "CIVIL_AUTHORITY"]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -141,47 +116,20 @@ export default function RegisterPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                />
-              </div>
-
-              <div className="space-y-2">
                 <Label htmlFor="role">Role</Label>
-                <Select
-                  value={formData.role}
-                  onValueChange={(value) => setFormData({ ...formData, role: value })}
-                  required
-                >
+                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
                   <SelectTrigger>
                     <SelectValue placeholder="Select your role" />
                   </SelectTrigger>
                   <SelectContent>
                     {roles.map((role) => (
                       <SelectItem key={role} value={role}>
-                        {role}
+                        {role.charAt(0) + role.slice(1).toLowerCase().replace('_', ' ')}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
-
-              {formData.role && formData.role !== "Admin" && (
-              <div className="space-y-2">
-                <Label htmlFor="department">Department</Label>
-                <Input
-                  id="department"
-                  value={formData.department}
-                  onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                  placeholder="e.g., Cardiology, Emergency, etc."
-                />
-              </div>
-              )}
 
               <div className="space-y-2">
                 <Label htmlFor="password">Password</Label>

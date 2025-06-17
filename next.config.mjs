@@ -1,13 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true,
+    // Only run ESLint on local development
+    ignoreDuringBuilds: process.env.NODE_ENV === 'production',
   },
   typescript: {
-    ignoreBuildErrors: true,
+    // Only run TypeScript on local development
+    ignoreBuildErrors: process.env.NODE_ENV === 'production',
   },
   images: {
-    unoptimized: true,
+    domains: ['localhost'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '**',
+      },
+    ],
   },
 }
 

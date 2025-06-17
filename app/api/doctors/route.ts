@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createDoctor } from '@/lib/db/medical_queries';
 import { withValidation } from '@/lib/middleware/validation';
+import { query } from '@/lib/db/queries';
 
 // POST /api/doctors - Register a new doctor
 export async function POST(request: Request) {

@@ -168,6 +168,47 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+              <Users className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.patients}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Appointments</CardTitle>
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.appointments}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Prescriptions</CardTitle>
+              <Pill className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.prescriptions}</div>
+            </CardContent>
+          </Card>
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">Consultations</CardTitle>
+              <Video className="h-4 w-4 text-muted-foreground" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold">{stats.consultations}</div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Role-specific dashboard components */}
         {currentUser.role === "Admin" && <AdminDashboard stats={stats} />}
         {currentUser.role === "Doctor" && <DoctorDashboard stats={stats} />}
         {currentUser.role === "Nurse" && <NurseDashboard stats={stats} />}
@@ -182,71 +223,80 @@ export default function DashboardPage() {
 }
 
 function AdminDashboard({ stats }: { stats: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Admin Dashboard</h1>
-        <p className="text-gray-600">Complete system control and management</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Admin Dashboard</h2>
+          <p className="text-gray-600">Complete system control and management</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
 
-      {/* Stats Cards */}
+      {/* Stats Overview */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <Card className="border-blue-200 bg-blue-50">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-blue-800">Total Patients</CardTitle>
-            <Users className="h-4 w-4 text-blue-600" />
+            <CardTitle className="text-sm font-medium">Total Patients</CardTitle>
+            <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-700">{stats.patients}</div>
+            <div className="text-2xl font-bold">{stats.patients}</div>
           </CardContent>
         </Card>
-
-        <Card className="border-green-200 bg-green-50">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-800">Active Users</CardTitle>
-            <Activity className="h-4 w-4 text-green-600" />
+            <CardTitle className="text-sm font-medium">Appointments</CardTitle>
+            <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-700">{stats.certificates}</div>
+            <div className="text-2xl font-bold">{stats.appointments}</div>
           </CardContent>
         </Card>
-
-        <Card className="border-purple-200 bg-purple-50">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-800">Today's Appointments</CardTitle>
-            <Calendar className="h-4 w-4 text-purple-600" />
+            <CardTitle className="text-sm font-medium">Prescriptions</CardTitle>
+            <Pill className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-700">{stats.appointments}</div>
+            <div className="text-2xl font-bold">{stats.prescriptions}</div>
           </CardContent>
         </Card>
-
-        <Card className="border-orange-200 bg-orange-50">
+        <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-orange-800">System Health</CardTitle>
-            <Shield className="h-4 w-4 text-orange-600" />
+            <CardTitle className="text-sm font-medium">Consultations</CardTitle>
+            <Video className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-700">100%</div>
+            <div className="text-2xl font-bold">{stats.consultations}</div>
           </CardContent>
         </Card>
       </div>
 
-      {/* Admin Quick Actions */}
+      {/* Admin Navigation */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Database className="h-5 w-5 text-blue-600" />
-              Data Management
+              <Users className="h-5 w-5 text-blue-600" />
+              User Management
             </CardTitle>
-            <CardDescription>Complete control over all system data</CardDescription>
+            <CardDescription>Manage system users and permissions</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/admin/data-management">
+            <Link href="/dashboard/admin/user-management">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                <Database className="h-4 w-4 mr-2" />
-                Manage System Data
+                <Users className="h-4 w-4 mr-2" />
+                Manage Users
               </Button>
             </Link>
           </CardContent>
@@ -255,16 +305,16 @@ function AdminDashboard({ stats }: { stats: any }) {
         <Card className="hover:shadow-lg transition-shadow border-green-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-green-600" />
-              User Management
+              <Database className="h-5 w-5 text-green-600" />
+              Data Management
             </CardTitle>
-            <CardDescription>Manage all system users and roles</CardDescription>
+            <CardDescription>Manage system data and records</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/admin/user-management">
+            <Link href="/dashboard/admin/data-management">
               <Button className="w-full bg-green-600 hover:bg-green-700">
-                <Users className="h-4 w-4 mr-2" />
-                Manage Users
+                <Database className="h-4 w-4 mr-2" />
+                Manage Data
               </Button>
             </Link>
           </CardContent>
@@ -273,106 +323,16 @@ function AdminDashboard({ stats }: { stats: any }) {
         <Card className="hover:shadow-lg transition-shadow border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Monitor className="h-5 w-5 text-purple-600" />
-              Real-Time Monitoring
+              <Shield className="h-5 w-5 text-purple-600" />
+              Security Settings
             </CardTitle>
-            <CardDescription>Live system and patient monitoring</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/monitoring">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                <Monitor className="h-4 w-4 mr-2" />
-                View Monitoring
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-indigo-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-indigo-600" />
-              Analytics & Reports
-            </CardTitle>
-            <CardDescription>Comprehensive system analytics</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/analytics">
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                View Analytics
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-red-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Stamp className="h-5 w-5 text-red-600" />
-              Civil Authority
-            </CardTitle>
-            <CardDescription>Birth and death certificate management</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/civil-authority">
-              <Button className="w-full bg-red-600 hover:bg-red-700">
-                <Stamp className="h-4 w-4 mr-2" />
-                Civil Registry
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-orange-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-orange-600" />
-              System Security
-            </CardTitle>
-            <CardDescription>Security monitoring and management</CardDescription>
+            <CardDescription>Manage system security and access</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/dashboard/admin/security">
-              <Button className="w-full bg-orange-600 hover:bg-orange-700">
+              <Button className="w-full bg-purple-600 hover:bg-purple-700">
                 <Shield className="h-4 w-4 mr-2" />
-                Security Center
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-emerald-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Download className="h-5 w-5 text-emerald-600" />
-              Reports & Downloads
-            </CardTitle>
-            <CardDescription>Generate and download system reports</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/reports">
-              <Button className="w-full bg-emerald-600 hover:bg-emerald-700">
-                <Download className="h-4 w-4 mr-2" />
-                Generate Reports
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-pink-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Baby className="h-5 w-5 text-pink-600" />
-              Pediatrics Department
-            </CardTitle>
-            <CardDescription>Specialized care for children and adolescents</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/pediatrics">
-              <Button className="w-full bg-pink-600 hover:bg-pink-700">
-                <Baby className="h-4 w-4 mr-2" />
-                Pediatrics Portal
+                Security Settings
               </Button>
             </Link>
           </CardContent>
@@ -383,28 +343,40 @@ function AdminDashboard({ stats }: { stats: any }) {
 }
 
 function DoctorDashboard({ stats }: { stats: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Doctor Dashboard</h1>
-        <p className="text-gray-600">Patient care and medical management</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Doctor Dashboard</h2>
+          <p className="text-gray-600">Patient care and medical management</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
 
-      {/* Doctor Quick Actions */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Doctor Navigation */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Users className="h-5 w-5 text-blue-600" />
-              Patient Records
+              Patient Management
             </CardTitle>
-            <CardDescription>View and manage patient medical records</CardDescription>
+            <CardDescription>View and manage patient records</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/doctor/patient-records">
+            <Link href="/dashboard/doctor/patients">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
                 <Users className="h-4 w-4 mr-2" />
-                View Records
+                View Patients
               </Button>
             </Link>
           </CardContent>
@@ -416,132 +388,10 @@ function DoctorDashboard({ stats }: { stats: any }) {
               <Calendar className="h-5 w-5 text-green-600" />
               Appointments
             </CardTitle>
-            <CardDescription>Manage your appointment schedule</CardDescription>
+            <CardDescription>Manage patient appointments</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/appointments">
-              <Button className="w-full bg-green-600 hover:bg-green-700">
-                <Calendar className="h-4 w-4 mr-2" />
-                View Schedule
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-purple-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Video className="h-5 w-5 text-purple-600" />
-              Telemedicine
-            </CardTitle>
-            <CardDescription>Virtual consultations and remote care</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/telemedicine">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                <Video className="h-4 w-4 mr-2" />
-                Virtual Consultations
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-orange-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Pill className="h-5 w-5 text-orange-600" />
-              Prescriptions
-            </CardTitle>
-            <CardDescription>Manage patient prescriptions</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/prescriptions">
-              <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                <Pill className="h-4 w-4 mr-2" />
-                Manage Prescriptions
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-indigo-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <BarChart3 className="h-5 w-5 text-indigo-600" />
-              Analytics
-            </CardTitle>
-            <CardDescription>View medical analytics and reports</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/analytics">
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                <BarChart3 className="h-4 w-4 mr-2" />
-                View Analytics
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-red-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Heart className="h-5 w-5 text-red-600" />
-              Civil Authority
-            </CardTitle>
-            <CardDescription>Death certificate collaboration</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/doctor/civil-authority">
-              <Button className="w-full bg-red-600 hover:bg-red-700">
-                <Heart className="h-4 w-4 mr-2" />
-                Death Certificates
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-      </div>
-    </div>
-  )
-}
-
-function PatientDashboard({ user }: { user: any }) {
-  return (
-    <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Patient Portal</h1>
-        <p className="text-gray-600">Your health information and appointments</p>
-      </div>
-
-      {/* Patient Quick Actions */}
-      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card className="hover:shadow-lg transition-shadow border-blue-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-blue-600" />
-              My Medical Records
-            </CardTitle>
-            <CardDescription>View your medical history and records</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/patient/my-records">
-              <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                <FileText className="h-4 w-4 mr-2" />
-                View Records
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-green-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5 text-green-600" />
-              My Appointments
-            </CardTitle>
-            <CardDescription>Schedule and manage appointments</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/appointments">
+            <Link href="/dashboard/doctor/appointments">
               <Button className="w-full bg-green-600 hover:bg-green-700">
                 <Calendar className="h-4 w-4 mr-2" />
                 View Appointments
@@ -553,52 +403,96 @@ function PatientDashboard({ user }: { user: any }) {
         <Card className="hover:shadow-lg transition-shadow border-purple-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Activity className="h-5 w-5 text-purple-600" />
-              Health Tracking
+              <Pill className="h-5 w-5 text-purple-600" />
+              Prescriptions
             </CardTitle>
-            <CardDescription>Track your health metrics</CardDescription>
+            <CardDescription>Manage patient prescriptions</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/patient/my-records">
+            <Link href="/dashboard/doctor/prescriptions">
               <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                <Activity className="h-4 w-4 mr-2" />
-                View Health Data
+                <Pill className="h-4 w-4 mr-2" />
+                Manage Prescriptions
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  )
+}
+
+function PatientDashboard({ user }: { user: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
+  return (
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Patient Dashboard</h2>
+          <p className="text-gray-600">Welcome to your healthcare portal</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
+
+      {/* Patient Navigation */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-lg transition-shadow border-blue-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5 text-blue-600" />
+              Appointments
+            </CardTitle>
+            <CardDescription>View your appointments</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/patient/appointments">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                <Calendar className="h-4 w-4 mr-2" />
+                View Appointments
               </Button>
             </Link>
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow border-orange-200">
+        <Card className="hover:shadow-lg transition-shadow border-green-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Pill className="h-5 w-5 text-orange-600" />
-              My Prescriptions
+              <FileText className="h-5 w-5 text-green-600" />
+              Medical Records
             </CardTitle>
-            <CardDescription>View your current medications</CardDescription>
+            <CardDescription>View your medical records</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/patient/my-records">
-              <Button className="w-full bg-orange-600 hover:bg-orange-700">
+            <Link href="/dashboard/patient/records">
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                <FileText className="h-4 w-4 mr-2" />
+                View Records
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-purple-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Pill className="h-5 w-5 text-purple-600" />
+              Prescriptions
+            </CardTitle>
+            <CardDescription>View your prescriptions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/patient/prescriptions">
+              <Button className="w-full bg-purple-600 hover:bg-purple-700">
                 <Pill className="h-4 w-4 mr-2" />
                 View Prescriptions
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-indigo-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Video className="h-5 w-5 text-indigo-600" />
-              Telemedicine
-            </CardTitle>
-            <CardDescription>Join virtual consultations</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/telemedicine">
-              <Button className="w-full bg-indigo-600 hover:bg-indigo-700">
-                <Video className="h-4 w-4 mr-2" />
-                Virtual Consultations
               </Button>
             </Link>
           </CardContent>
@@ -609,13 +503,26 @@ function PatientDashboard({ user }: { user: any }) {
 }
 
 function NurseDashboard({ stats }: { stats: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Nurse Dashboard</h1>
-        <p className="text-gray-600">Patient care and nursing management</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Nurse Dashboard</h2>
+          <p className="text-gray-600">Patient care and monitoring</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
 
+      {/* Nurse Navigation */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow border-blue-200">
           <CardHeader>
@@ -644,7 +551,7 @@ function NurseDashboard({ stats }: { stats: any }) {
             <CardDescription>Record and monitor patient vitals</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/monitoring">
+            <Link href="/dashboard/nurse/vital-signs">
               <Button className="w-full bg-green-600 hover:bg-green-700">
                 <Activity className="h-4 w-4 mr-2" />
                 Record Vitals
@@ -659,13 +566,13 @@ function NurseDashboard({ stats }: { stats: any }) {
               <FileText className="h-5 w-5 text-purple-600" />
               Care Plans
             </CardTitle>
-            <CardDescription>View and manage patient care plans</CardDescription>
+            <CardDescription>Manage patient care plans</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/dashboard/nurse/care-plans">
               <Button className="w-full bg-purple-600 hover:bg-purple-700">
                 <FileText className="h-4 w-4 mr-2" />
-                View Care Plans
+                Manage Care Plans
               </Button>
             </Link>
           </CardContent>
@@ -676,27 +583,40 @@ function NurseDashboard({ stats }: { stats: any }) {
 }
 
 function LabTechDashboard({ stats }: { stats: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Lab Technician Dashboard</h1>
-        <p className="text-gray-600">Laboratory tests and results management</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Lab Technician Dashboard</h2>
+          <p className="text-gray-600">Laboratory and test management</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
 
+      {/* Lab Tech Navigation */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Activity className="h-5 w-5 text-blue-600" />
-              Test Results
+              Lab Tests
             </CardTitle>
-            <CardDescription>Enter and manage test results</CardDescription>
+            <CardDescription>Manage laboratory tests</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/lab/results">
+            <Link href="/dashboard/lab/tests">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
                 <Activity className="h-4 w-4 mr-2" />
-                Manage Results
+                Manage Tests
               </Button>
             </Link>
           </CardContent>
@@ -706,33 +626,15 @@ function LabTechDashboard({ stats }: { stats: any }) {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <FileText className="h-5 w-5 text-green-600" />
-              Lab Reports
+              Test Results
             </CardTitle>
-            <CardDescription>Generate laboratory reports</CardDescription>
+            <CardDescription>View and manage test results</CardDescription>
           </CardHeader>
           <CardContent>
             <Link href="/dashboard/lab/results">
               <Button className="w-full bg-green-600 hover:bg-green-700">
                 <FileText className="h-4 w-4 mr-2" />
-                Generate Reports
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-purple-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Search className="h-5 w-5 text-purple-600" />
-              Sample Tracking
-            </CardTitle>
-            <CardDescription>Track sample status</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/lab/results">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                <Search className="h-4 w-4 mr-2" />
-                Track Samples
+                View Results
               </Button>
             </Link>
           </CardContent>
@@ -743,26 +645,39 @@ function LabTechDashboard({ stats }: { stats: any }) {
 }
 
 function ReceptionistDashboard({ stats }: { stats: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
   return (
     <div className="space-y-8">
-      <div>
-        <h1 className="text-3xl font-bold text-gray-900">Receptionist Dashboard</h1>
-        <p className="text-gray-600">Patient registration and appointments management</p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Receptionist Dashboard</h2>
+          <p className="text-gray-600">Patient registration and scheduling</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
 
+      {/* Receptionist Navigation */}
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <Card className="hover:shadow-lg transition-shadow border-blue-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <UserPlus className="h-5 w-5 text-blue-600" />
+              <Users className="h-5 w-5 text-blue-600" />
               Patient Registration
             </CardTitle>
             <CardDescription>Register new patients</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/patients/new">
+            <Link href="/dashboard/reception/register">
               <Button className="w-full bg-blue-600 hover:bg-blue-700">
-                <UserPlus className="h-4 w-4 mr-2" />
+                <Users className="h-4 w-4 mr-2" />
                 Register Patient
               </Button>
             </Link>
@@ -775,85 +690,13 @@ function ReceptionistDashboard({ stats }: { stats: any }) {
               <Calendar className="h-5 w-5 text-green-600" />
               Appointments
             </CardTitle>
-            <CardDescription>Schedule and manage appointments</CardDescription>
+            <CardDescription>Manage patient appointments</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/appointments">
+            <Link href="/dashboard/reception/appointments">
               <Button className="w-full bg-green-600 hover:bg-green-700">
                 <Calendar className="h-4 w-4 mr-2" />
                 Manage Appointments
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-purple-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5 text-purple-600" />
-              Insurance Verification
-            </CardTitle>
-            <CardDescription>Verify patient insurance</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/reception/insurance">
-              <Button className="w-full bg-purple-600 hover:bg-purple-700">
-                <FileText className="h-4 w-4 mr-2" />
-                Verify Insurance
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-orange-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5 text-orange-600" />
-              Patient Records
-            </CardTitle>
-            <CardDescription>View and manage patient records</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/patients">
-              <Button className="w-full bg-orange-600 hover:bg-orange-700">
-                <Users className="h-4 w-4 mr-2" />
-                View Records
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-red-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-red-600" />
-              Notifications
-            </CardTitle>
-            <CardDescription>View important notifications</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/reception/notifications">
-              <Button className="w-full bg-red-600 hover:bg-red-700">
-                <Bell className="h-4 w-4 mr-2" />
-                View Notifications
-              </Button>
-            </Link>
-          </CardContent>
-        </Card>
-
-        <Card className="hover:shadow-lg transition-shadow border-teal-200">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <FileCheck className="h-5 w-5 text-teal-600" />
-              Check-in/Check-out
-            </CardTitle>
-            <CardDescription>Manage patient check-ins and check-outs</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Link href="/dashboard/reception/check-in">
-              <Button className="w-full bg-teal-600 hover:bg-teal-700">
-                <FileCheck className="h-4 w-4 mr-2" />
-                Manage Check-ins
               </Button>
             </Link>
           </CardContent>
@@ -864,157 +707,125 @@ function ReceptionistDashboard({ stats }: { stats: any }) {
 }
 
 function CivilAuthorityDashboard({ stats }: { stats: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5 text-blue-600" />
-            Certificates
-          </CardTitle>
-          <CardDescription>Manage birth and death certificates</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/certificates">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
-              <FileText className="h-4 w-4 mr-2" />
-              View Certificates
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Civil Authority Dashboard</h2>
+          <p className="text-gray-600">Certificate and document management</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
 
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-green-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileCheck className="h-5 w-5 text-green-600" />
-            Approve Certificates
-          </CardTitle>
-          <CardDescription>Review and approve certificate requests</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/certificates/approve">
-            <Button className="w-full bg-green-600 hover:bg-green-700">
-              <FileCheck className="h-4 w-4 mr-2" />
-              Approve Requests
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+      {/* Civil Authority Navigation */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-lg transition-shadow border-blue-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-blue-600" />
+              Birth Certificates
+            </CardTitle>
+            <CardDescription>Manage birth certificates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/civil-authority/birth-certificates">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                <FileText className="h-4 w-4 mr-2" />
+                Manage Birth Certificates
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <ClipboardList className="h-5 w-5 text-purple-600" />
-            Reports
-          </CardTitle>
-          <CardDescription>View and generate reports</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/certificates/reports">
-            <Button className="w-full bg-purple-600 hover:bg-purple-700">
-              <ClipboardList className="h-4 w-4 mr-2" />
-              View Reports
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-yellow-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Activity className="h-5 w-5 text-yellow-600" />
-            Statistics
-          </CardTitle>
-          <CardDescription>View certificate statistics</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/certificates/statistics">
-            <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
-              <Activity className="h-4 w-4 mr-2" />
-              View Statistics
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
-
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-red-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Settings className="h-5 w-5 text-red-600" />
-            Settings
-          </CardTitle>
-          <CardDescription>Manage your account settings</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/settings">
-            <Button className="w-full bg-red-600 hover:bg-red-700">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+        <Card className="hover:shadow-lg transition-shadow border-green-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FileText className="h-5 w-5 text-green-600" />
+              Death Certificates
+            </CardTitle>
+            <CardDescription>Manage death certificates</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/civil-authority/death-certificates">
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                <FileText className="h-4 w-4 mr-2" />
+                Manage Death Certificates
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }
 
 function DataManagerDashboard({ stats }: { stats: any }) {
+  const router = useRouter()
+  
+  const handleLogout = () => {
+    localStorage.removeItem("currentUser")
+    router.push("/auth/login")
+  }
+
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Database className="h-5 w-5 text-blue-600" />
-            Data Management
-          </CardTitle>
-          <CardDescription>Manage system data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/admin/data-management">
-            <Button className="w-full bg-blue-600 hover:bg-blue-700">
-              <Database className="h-4 w-4 mr-2" />
-              Manage Data
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+    <div className="space-y-8">
+      <div className="flex items-center justify-between">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-900">Data Manager Dashboard</h2>
+          <p className="text-gray-600">System data management and analytics</p>
+        </div>
+        <Button variant="outline" onClick={handleLogout}>
+          Logout
+        </Button>
+      </div>
 
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-green-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Download className="h-5 w-5 text-green-600" />
-            Export Data
-          </CardTitle>
-          <CardDescription>Export system data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/admin/data-management/export">
-            <Button className="w-full bg-green-600 hover:bg-green-700">
-              <Download className="h-4 w-4 mr-2" />
-              Export Data
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+      {/* Data Manager Navigation */}
+      <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card className="hover:shadow-lg transition-shadow border-blue-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Database className="h-5 w-5 text-blue-600" />
+              Data Management
+            </CardTitle>
+            <CardDescription>Manage system data</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/data-manager/data">
+              <Button className="w-full bg-blue-600 hover:bg-blue-700">
+                <Database className="h-4 w-4 mr-2" />
+                Manage Data
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
 
-      <Card className="hover:shadow-lg transition-shadow cursor-pointer border-purple-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Upload className="h-5 w-5 text-purple-600" />
-            Import Data
-          </CardTitle>
-          <CardDescription>Import system data</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Link href="/dashboard/admin/data-management/import">
-            <Button className="w-full bg-purple-600 hover:bg-purple-700">
-              <Upload className="h-4 w-4 mr-2" />
-              Import Data
-            </Button>
-          </Link>
-        </CardContent>
-      </Card>
+        <Card className="hover:shadow-lg transition-shadow border-green-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-green-600" />
+              Analytics
+            </CardTitle>
+            <CardDescription>View system analytics</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/data-manager/analytics">
+              <Button className="w-full bg-green-600 hover:bg-green-700">
+                <BarChart3 className="h-4 w-4 mr-2" />
+                View Analytics
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   )
 }

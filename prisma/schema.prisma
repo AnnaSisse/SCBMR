@@ -1,0 +1,220 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Account {
+  id                String  @id
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+  User              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Comment {
+  id        String   @id
+  content   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  userId    String
+  projectId String?
+  taskId    String?
+  Project   Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  Task      Task?    @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  User      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Project {
+  id          String    @id
+  name        String
+  description String?
+  status      Status    @default(ACTIVE)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  userId      String
+  Comment     Comment[]
+  User        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  Task        Task[]
+}
+
+model Session {
+  id           String   @id
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  User         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Task {
+  id          String     @id
+  title       String
+  description String?
+  status      TaskStatus @default(TODO)
+  priority    Priority   @default(MEDIUM)
+  dueDate     DateTime?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  projectId   String
+  userId      String
+  Comment     Comment[]
+  Project     Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  User        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model User {
+  id        String    @id
+  name      String?
+  email     String    @unique
+  password  String
+  image     String?
+  role      Role      @default(USER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  Account   Account[]
+  Comment   Comment[]
+  Project   Project[]
+  Session   Session[]
+  Task      Task[]
+}
+
+model appointments {
+  appointment_id   Int       @id @default(autoincrement())
+  patient_id       Int?
+  doctor_id        Int?
+  appointment_date DateTime  @db.Timestamp(6)
+  status           String?   @default("scheduled") @db.VarChar(20)
+  notes            String?
+  created_at       DateTime? @default(now()) @db.Timestamp(6)
+  doctors          doctors?  @relation(fields: [doctor_id], references: [doctor_id], onDelete: NoAction, onUpdate: NoAction)
+  patients         patients? @relation(fields: [patient_id], references: [patient_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model doctor_availability {
+  id           Int       @id @default(autoincrement())
+  doctor_id    Int
+  start_date   DateTime  @db.Date
+  end_date     DateTime  @db.Date
+  days_of_week Int[]
+  start_time   DateTime  @db.Time(6)
+  end_time     DateTime  @db.Time(6)
+  break_start  DateTime? @db.Time(6)
+  break_end    DateTime? @db.Time(6)
+  created_at   DateTime? @default(now()) @db.Timestamptz(6)
+  updated_at   DateTime? @default(now()) @db.Timestamptz(6)
+  doctors      doctors   @relation(fields: [doctor_id], references: [doctor_id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@index([doctor_id, start_date, end_date], map: "idx_doctor_availability_dates")
+}
+
+model doctors {
+  doctor_id           Int                   @id @default(autoincrement())
+  first_name          String                @db.VarChar(50)
+  last_name           String                @db.VarChar(50)
+  specialization      String?               @db.VarChar(100)
+  phone_number        String?               @db.VarChar(20)
+  email               String?               @db.VarChar(100)
+  created_at          DateTime?             @default(now()) @db.Timestamp(6)
+  appointments        appointments[]
+  doctor_availability doctor_availability[]
+  medical_records     medical_records[]
+}
+
+model medical_records {
+  record_id                Int                        @id @default(autoincrement())
+  patient_id               Int?
+  doctor_id                Int?
+  diagnosis                String?
+  prescription             String?
+  visit_date               DateTime?                  @default(now()) @db.Timestamp(6)
+  created_at               DateTime?                  @default(now()) @db.Timestamp(6)
+  doctors                  doctors?                   @relation(fields: [doctor_id], references: [doctor_id], onDelete: NoAction, onUpdate: NoAction)
+  patients                 patients?                  @relation(fields: [patient_id], references: [patient_id], onDelete: NoAction, onUpdate: NoAction)
+  prescription_medications prescription_medications[]
+}
+
+model medications {
+  medication_id            Int                        @id @default(autoincrement())
+  name                     String                     @db.VarChar(100)
+  description              String?
+  dosage                   String?                    @db.VarChar(50)
+  created_at               DateTime?                  @default(now()) @db.Timestamp(6)
+  prescription_medications prescription_medications[]
+}
+
+model patients {
+  patient_id      Int               @id @default(autoincrement())
+  first_name      String            @db.VarChar(50)
+  last_name       String            @db.VarChar(50)
+  date_of_birth   DateTime          @db.Date
+  gender          String?           @db.VarChar(10)
+  phone_number    String?           @db.VarChar(20)
+  email           String?           @db.VarChar(100)
+  address         String?
+  created_at      DateTime?         @default(now()) @db.Timestamp(6)
+  appointments    appointments[]
+  medical_records medical_records[]
+}
+
+model prescription_medications {
+  prescription_id Int              @id @default(autoincrement())
+  record_id       Int?
+  medication_id   Int?
+  dosage          String?          @db.VarChar(50)
+  frequency       String?          @db.VarChar(50)
+  duration        String?          @db.VarChar(50)
+  created_at      DateTime?        @default(now()) @db.Timestamp(6)
+  medications     medications?     @relation(fields: [medication_id], references: [medication_id], onDelete: NoAction, onUpdate: NoAction)
+  medical_records medical_records? @relation(fields: [record_id], references: [record_id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model test_table {
+  id         Int       @id @default(autoincrement())
+  name       String?   @db.VarChar(100)
+  created_at DateTime? @default(now()) @db.Timestamp(6)
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum Role {
+  USER
+  ADMIN
+  DOCTOR
+  NURSE
+  PATIENT
+  RECEPTION
+  LAB
+  CIVIL_AUTHORITY
+}
+
+enum Status {
+  ACTIVE
+  ARCHIVED
+  DELETED
+}
+
+enum TaskStatus {
+  TODO
+  IN_PROGRESS
+  REVIEW
+  DONE
+}

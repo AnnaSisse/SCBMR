@@ -1,75 +1,94 @@
 import { NextResponse } from 'next/server';
-import { createPatient, getPatient } from '@/lib/db/medical_queries';
+import { query } from '@/lib/db/queries';
 
-// POST /api/patients - Register a new patient
-export async function POST(request: Request) {
+// GET /api/patients - Get all patients with optional filtering
+export async function GET(request: Request) {
     try {
-        const body = await request.json();
+        const { searchParams } = new URL(request.url);
+        const page = parseInt(searchParams.get('page') || '1');
+        const limit = parseInt(searchParams.get('limit') || '10');
+        const search = searchParams.get('search') || '';
+        const offset = (page - 1) * limit;
+
+        let queryText = `
+            SELECT * FROM patients 
+            WHERE first_name ILIKE $1 
+            OR last_name ILIKE $1 
+            OR email ILIKE $1
+            ORDER BY created_at DESC
+            LIMIT $2 OFFSET $3
+        `;
         
-        // Validate required fields
-        if (!body.first_name || !body.last_name || !body.date_of_birth) {
-            return NextResponse.json({
-                success: false,
-                message: 'Missing required fields: first_name, last_name, and date_of_birth are required'
-            }, { status: 400 });
-        }
-
-        const patient = await createPatient({
-            first_name: body.first_name,
-            last_name: body.last_name,
-            date_of_birth: new Date(body.date_of_birth),
-            gender: body.gender,
-            phone_number: body.phone_number,
-            email: body.email,
-            address: body.address
-        });
-
+        const result = await query(queryText, [`%${search}%`, limit, offset]);
+        
+        // Get total count for pagination
+        const countResult = await query(
+            'SELECT COUNT(*) FROM patients WHERE first_name ILIKE $1 OR last_name ILIKE $1 OR email ILIKE $1',
+            [`%${search}%`]
+        );
+        
         return NextResponse.json({
             success: true,
-            message: 'Patient registered successfully',
-            data: patient
+            data: result.rows,
+            pagination: {
+                total: parseInt(countResult.rows[0].count),
+                page,
+                limit,
+                totalPages: Math.ceil(parseInt(countResult.rows[0].count) / limit)
+            }
         });
     } catch (error) {
-        console.error('Error registering patient:', error);
+        console.error('Error fetching patients:', error);
         return NextResponse.json({
             success: false,
-            message: 'Failed to register patient',
+            message: 'Failed to fetch patients',
             error: error instanceof Error ? error.message : 'Unknown error'
         }, { status: 500 });
     }
 }
 
-// GET /api/patients/[id] - Get patient details
-export async function GET(request: Request) {
+// POST /api/patients - Create a new patient
+export async function POST(request: Request) {
     try {
-        const { searchParams } = new URL(request.url);
-        const patientId = searchParams.get('id');
-
-        if (!patientId) {
+        const body = await request.json();
+        
+        // Validate required fields
+        const requiredFields = ['first_name', 'last_name', 'date_of_birth'];
+        const missingFields = requiredFields.filter(field => !body[field]);
+        
+        if (missingFields.length > 0) {
             return NextResponse.json({
                 success: false,
-                message: 'Patient ID is required'
+                message: `Missing required fields: ${missingFields.join(', ')}`
             }, { status: 400 });
         }
 
-        const patient = await getPatient(parseInt(patientId));
-        
-        if (!patient) {
-            return NextResponse.json({
-                success: false,
-                message: 'Patient not found'
-            }, { status: 404 });
-        }
+        const result = await query(
+            `INSERT INTO patients 
+            (first_name, last_name, date_of_birth, gender, phone_number, email, address)
+            VALUES ($1, $2, $3, $4, $5, $6, $7)
+            RETURNING *`,
+            [
+                body.first_name,
+                body.last_name,
+                body.date_of_birth,
+                body.gender,
+                body.phone_number,
+                body.email,
+                body.address
+            ]
+        );
 
         return NextResponse.json({
             success: true,
-            data: patient
+            message: 'Patient created successfully',
+            data: result.rows[0]
         });
     } catch (error) {
-        console.error('Error fetching patient:', error);
+        console.error('Error creating patient:', error);
         return NextResponse.json({
             success: false,
-            message: 'Failed to fetch patient details',
+            message: 'Failed to create patient',
             error: error instanceof Error ? error.message : 'Unknown error'
         }, { status: 500 });
     }

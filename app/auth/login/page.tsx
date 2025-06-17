@@ -1,14 +1,12 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
+import { signIn } from "next-auth/react"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Stethoscope, ArrowLeft } from "lucide-react"
 import Link from "next/link"
@@ -17,41 +15,69 @@ export default function LoginPage() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
-    role: "",
   })
   const [error, setError] = useState("")
+  const [success, setSuccess] = useState("")
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+
+  useEffect(() => {
+    // Check if user just registered
+    const searchParams = new URLSearchParams(window.location.search)
+    if (searchParams.get("registered") === "true") {
+      setSuccess("Registration successful! Please sign in.")
+    }
+  }, [])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
     setError("")
+    setSuccess("")
 
     try {
-      // Get users from localStorage
-      const users = JSON.parse(localStorage.getItem("users") || "[]")
+      const result = await signIn("credentials", {
+        email: formData.email,
+        password: formData.password,
+        redirect: false,
+      })
 
-      // Find user
-      const user = users.find(
-        (u: any) => u.email === formData.email && u.password === formData.password && u.role === formData.role,
-      )
+      if (result?.error) {
+        setError("Invalid email or password")
+        return
+      }
 
-      if (user) {
-        // Store current user
-        localStorage.setItem("currentUser", JSON.stringify(user))
-        router.push("/dashboard")
+      // Get the user data from the session
+      const response = await fetch("/api/auth/session")
+      const session = await response.json()
+
+      if (session?.user?.role) {
+        // Store user data in localStorage for client-side access
+        localStorage.setItem("currentUser", JSON.stringify(session.user))
+        
+        // Map role to dashboard path
+        const roleToPath: { [key: string]: string } = {
+          ADMIN: "/dashboard/admin",
+          DOCTOR: "/dashboard/doctor",
+          NURSE: "/dashboard/nurse",
+          PATIENT: "/dashboard/patient",
+          RECEPTION: "/dashboard/reception",
+          LAB: "/dashboard/lab",
+          CIVIL_AUTHORITY: "/dashboard/civil-authority",
+        }
+
+        const dashboardPath = roleToPath[session.user.role] || "/dashboard"
+        router.push(dashboardPath)
       } else {
-        setError("Invalid credentials or role")
+        setError("Unable to determine user role. Please try again.")
       }
     } catch (err) {
-      setError("Login failed. Please try again.")
+      console.error("[LOGIN_ERROR]", err)
+      setError("An error occurred during login. Please try again.")
     } finally {
       setLoading(false)
     }
   }
-
-  const roles = ["Admin", "Doctor", "Patient", "Nurse", "Lab Technician", "Receptionist"]
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
@@ -65,17 +91,28 @@ export default function LoginPage() {
             <Stethoscope className="h-8 w-8 text-blue-600" />
             <span className="text-2xl font-bold text-gray-900">MedRecord</span>
           </div>
-          <h1 className="text-2xl font-bold text-gray-900">Welcome Back</h1>
-          <p className="text-gray-600">Sign in to your account</p>
+          <h1 className="text-2xl font-bold text-gray-900">Sign In</h1>
+          <p className="text-gray-600">Welcome back to your healthcare platform</p>
         </div>
 
         <Card>
           <CardHeader>
             <CardTitle>Login</CardTitle>
-            <CardDescription>Enter your credentials to access the system</CardDescription>
+            <CardDescription>Enter your credentials to access your account</CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
+              {error && (
+                <Alert variant="destructive">
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
+              {success && (
+                <Alert className="bg-green-50 text-green-700 border-green-200">
+                  <AlertDescription>{success}</AlertDescription>
+                </Alert>
+              )}
+
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
                 <Input
@@ -97,28 +134,6 @@ export default function LoginPage() {
                   required
                 />
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="role">Role</Label>
-                <Select value={formData.role} onValueChange={(value) => setFormData({ ...formData, role: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select your role" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {roles.map((role) => (
-                      <SelectItem key={role} value={role}>
-                        {role}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
-                </Alert>
-              )}
 
               <Button type="submit" className="w-full" disabled={loading}>
                 {loading ? "Signing in..." : "Sign In"}
