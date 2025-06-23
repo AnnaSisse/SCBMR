@@ -1,0 +1,19 @@
+# Database Configuration
+MYSQL_HOST=localhost
+MYSQL_USER=root
+MYSQL_PASSWORD=your_mysql_password
+MYSQL_DATABASE=hospital_db
+MYSQL_PORT=3306
+
+# Encryption Key (32-byte hex string for AES-256)
+# Generate one with: node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"
+AES_SECRET_KEY=your_32_byte_hex_encryption_key_here
+
+# Next.js Configuration
+NEXTAUTH_SECRET=your_nextauth_secret_here
+NEXTAUTH_URL=http://localhost:3000
+
+# Optional: Database SSL Configuration
+# MYSQL_SSL_CA=/path/to/ca-cert.pem
+# MYSQL_SSL_CERT=/path/to/client-cert.pem
+# MYSQL_SSL_KEY=/path/to/client-key.pem 
