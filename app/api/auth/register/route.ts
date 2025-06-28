@@ -19,13 +19,14 @@ export async function POST(request: Request) {
 
         return NextResponse.json({ user: newUser }, { status: 201 });
 
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Registration error:', error);
-
-        if (error.message === 'DUPLICATE_EMAIL') {
+        if (error instanceof Error && error.stack) {
+            console.error('Error stack:', error.stack);
+        }
+        if (error instanceof Error && error.message === 'DUPLICATE_EMAIL') {
             return NextResponse.json({ message: 'An account with this email already exists.' }, { status: 409 });
         }
-
-        return NextResponse.json({ message: 'An internal server error occurred' }, { status: 500 });
+        return NextResponse.json({ message: error instanceof Error ? error.message : 'An internal server error occurred', error: error instanceof Error ? error.stack : undefined }, { status: 500 });
     }
 } 

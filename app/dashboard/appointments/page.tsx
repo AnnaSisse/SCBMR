@@ -10,7 +10,7 @@ import { Calendar, Plus, ArrowLeft, Clock, User } from "lucide-react"
 import Link from "next/link"
 
 export default function AppointmentsPage() {
-  const [appointments, setAppointments] = useState<any[]>([])
+  const [appointments, setAppointments] = useState<unknown[]>([])
   const [user, setUser] = useState<any>(null)
   const router = useRouter()
 
@@ -128,15 +128,19 @@ export default function AppointmentsPage() {
                   {appointments.map((appointment) => (
                     <TableRow key={appointment.id}>
                       <TableCell>{new Date(appointment.date).toLocaleDateString()}</TableCell>
-                      <TableCell className="flex items-center gap-2">
+                      <TableCell>
+                        <span className="flex items-center gap-2">
                         <Clock className="h-4 w-4" />
                         {appointment.time}
+                        </span>
                       </TableCell>
-                      <TableCell className="flex items-center gap-2">
+                      <TableCell>{appointment.patientName}</TableCell>
+                      <TableCell>
+                        <span className="flex items-center gap-2">
                         <User className="h-4 w-4" />
-                        {appointment.patientName}
+                          {appointment.doctorName}
+                        </span>
                       </TableCell>
-                      <TableCell>{appointment.doctorName}</TableCell>
                       <TableCell>{appointment.type}</TableCell>
                       <TableCell>
                         <Badge className={getStatusColor(appointment.status)}>{appointment.status}</Badge>

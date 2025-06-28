@@ -1,7 +1,5 @@
 "use client"
 
-import type React from "react"
-
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
@@ -10,274 +8,339 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { ArrowLeft, UserPlus } from "lucide-react"
+import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, FileText } from "lucide-react"
 import Link from "next/link"
+import { toast } from "sonner"
 
 export default function NewPatientPage() {
-  const [formData, setFormData] = useState({
-    name: "",
-    email: "",
-    phone: "",
-    dateOfBirth: "",
-    gender: "",
-    address: "",
-    emergencyContact: "",
-    emergencyPhone: "",
-    bloodType: "",
-    allergies: "",
-    medicalHistory: "",
-    insurance: "",
-    status: "Active",
-  })
   const [loading, setLoading] = useState(false)
-  const [error, setError] = useState("")
+  const [user, setUser] = useState<any>(null)
   const router = useRouter()
+
+  const [patientForm, setPatientForm] = useState({
+    first_name: "",
+    last_name: "",
+    date_of_birth: "",
+    gender: "",
+    phone: "",
+    email: "",
+    address: "",
+    emergency_contact_name: "",
+    emergency_contact_phone: "",
+    emergency_contact_relationship: "",
+    blood_type: "",
+    allergies: "",
+    medical_history: "",
+    insurance_provider: "",
+    insurance_number: ""
+  })
+
+  useState(() => {
+    const userData = localStorage.getItem("currentUser")
+    if (!userData) {
+      router.push("/auth/login")
+      return
+    }
+    const currentUser = JSON.parse(userData)
+    setUser(currentUser)
+  })
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError("")
 
     try {
-      // Get existing patients
-      const patients = JSON.parse(localStorage.getItem("patients") || "[]")
+      const res = await fetch("/api/patients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...patientForm,
+          registered_by: user?.id
+        })
+      })
 
-      // Check if patient already exists
-      const existingPatient = patients.find((p: any) => p.email === formData.email)
-      if (existingPatient) {
-        setError("Patient with this email already exists")
-        setLoading(false)
-        return
+      const data = await res.json()
+
+      if (res.ok) {
+        toast.success("Patient registered successfully!")
+        router.push("/dashboard/patients")
+      } else {
+        toast.error(data.message || "Failed to register patient")
       }
-
-      // Calculate age
-      const birthDate = new Date(formData.dateOfBirth)
-      const today = new Date()
-      const age = today.getFullYear() - birthDate.getFullYear()
-
-      // Generate patient ID
-      const patientId = `P${Date.now().toString().slice(-6)}`
-
-      // Create new patient
-      const newPatient = {
-        id: Date.now().toString(),
-        patientId,
-        ...formData,
-        age,
-        createdAt: new Date().toISOString(),
-        lastVisit: null,
-        medicalRecords: [],
-      }
-
-      // Save patient
-      patients.push(newPatient)
-      localStorage.setItem("patients", JSON.stringify(patients))
-
-      router.push("/dashboard/patients")
-    } catch (err) {
-      setError("Failed to create patient. Please try again.")
+    } catch (error) {
+      toast.error("An error occurred while registering patient")
     } finally {
       setLoading(false)
     }
   }
 
+  if (!user) return <div>Loading...</div>
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex items-center gap-4">
-        <Link href="/dashboard/patients">
-          <Button variant="ghost" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Patients
-          </Button>
-        </Link>
-        <div>
-          <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
-            <UserPlus className="h-8 w-8" />
-            Add New Patient
-          </h1>
-          <p className="text-gray-600">Register a new patient in the system</p>
+    <div className="min-h-screen bg-gray-50 p-6">
+      <div className="max-w-4xl mx-auto">
+        <div className="mb-8">
+          <div className="flex items-center gap-4 mb-4">
+            <Link href="/dashboard/patients">
+              <Button variant="outline" size="sm">
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Patients
+              </Button>
+            </Link>
+            <h1 className="text-3xl font-bold text-gray-900 flex items-center gap-2">
+              <User className="h-8 w-8 text-blue-600" />
+              Register New Patient
+            </h1>
+          </div>
+          <p className="text-gray-600">Create a new patient record in the system</p>
         </div>
-      </div>
 
-      {/* Form */}
-      <Card>
-        <CardHeader>
-          <CardTitle>Patient Information</CardTitle>
-          <CardDescription>Fill in the patient's details to create their medical record</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <form onSubmit={handleSubmit} className="space-y-6">
+        <form onSubmit={handleSubmit}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Personal Information */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="name">Full Name *</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                  required
-                />
-              </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Personal Information
+                </CardTitle>
+                <CardDescription>Basic patient details</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="first_name">First Name *</Label>
+                    <Input
+                      id="first_name"
+                      value={patientForm.first_name}
+                      onChange={(e) => setPatientForm(prev => ({ ...prev, first_name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="last_name">Last Name *</Label>
+                    <Input
+                      id="last_name"
+                      value={patientForm.last_name}
+                      onChange={(e) => setPatientForm(prev => ({ ...prev, last_name: e.target.value }))}
+                      required
+                    />
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  required
-                />
-              </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="date_of_birth">Date of Birth *</Label>
+                    <Input
+                      id="date_of_birth"
+                      type="date"
+                      value={patientForm.date_of_birth}
+                      onChange={(e) => setPatientForm(prev => ({ ...prev, date_of_birth: e.target.value }))}
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="gender">Gender *</Label>
+                    <Select value={patientForm.gender} onValueChange={(value) => setPatientForm(prev => ({ ...prev, gender: value }))}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select gender" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male</SelectItem>
+                        <SelectItem value="female">Female</SelectItem>
+                        <SelectItem value="other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone">Phone Number *</Label>
-                <Input
-                  id="phone"
-                  type="tel"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  required
-                />
-              </div>
+                <div>
+                  <Label htmlFor="blood_type">Blood Type</Label>
+                  <Select value={patientForm.blood_type} onValueChange={(value) => setPatientForm(prev => ({ ...prev, blood_type: value }))}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select blood type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="A+">A+</SelectItem>
+                      <SelectItem value="A-">A-</SelectItem>
+                      <SelectItem value="B+">B+</SelectItem>
+                      <SelectItem value="B-">B-</SelectItem>
+                      <SelectItem value="AB+">AB+</SelectItem>
+                      <SelectItem value="AB-">AB-</SelectItem>
+                      <SelectItem value="O+">O+</SelectItem>
+                      <SelectItem value="O-">O-</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="dateOfBirth">Date of Birth *</Label>
-                <Input
-                  id="dateOfBirth"
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                  required
-                />
-              </div>
+            {/* Contact Information */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Phone className="h-5 w-5" />
+                  Contact Information
+                </CardTitle>
+                <CardDescription>Phone, email, and address</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="phone">Phone Number *</Label>
+                  <Input
+                    id="phone"
+                    type="tel"
+                    value={patientForm.phone}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, phone: e.target.value }))}
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select gender" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="Male">Male</SelectItem>
-                    <SelectItem value="Female">Female</SelectItem>
-                    <SelectItem value="Other">Other</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+                <div>
+                  <Label htmlFor="email">Email Address</Label>
+                  <Input
+                    id="email"
+                    type="email"
+                    value={patientForm.email}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, email: e.target.value }))}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="bloodType">Blood Type</Label>
-                <Select
-                  value={formData.bloodType}
-                  onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select blood type" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="A+">A+</SelectItem>
-                    <SelectItem value="A-">A-</SelectItem>
-                    <SelectItem value="B+">B+</SelectItem>
-                    <SelectItem value="B-">B-</SelectItem>
-                    <SelectItem value="AB+">AB+</SelectItem>
-                    <SelectItem value="AB-">AB-</SelectItem>
-                    <SelectItem value="O+">O+</SelectItem>
-                    <SelectItem value="O-">O-</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-
-            {/* Address */}
-            <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
-              <Textarea
-                id="address"
-                value={formData.address}
-                onChange={(e) => setFormData({ ...formData, address: e.target.value })}
-                rows={3}
-              />
-            </div>
+                <div>
+                  <Label htmlFor="address">Address</Label>
+                  <Textarea
+                    id="address"
+                    value={patientForm.address}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, address: e.target.value }))}
+                    rows={3}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Emergency Contact */}
-            <div className="grid md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="emergencyContact">Emergency Contact Name</Label>
-                <Input
-                  id="emergencyContact"
-                  value={formData.emergencyContact}
-                  onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
-                />
-              </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <User className="h-5 w-5" />
+                  Emergency Contact
+                </CardTitle>
+                <CardDescription>Emergency contact information</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="emergency_contact_name">Emergency Contact Name *</Label>
+                  <Input
+                    id="emergency_contact_name"
+                    value={patientForm.emergency_contact_name}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, emergency_contact_name: e.target.value }))}
+                    required
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="emergencyPhone">Emergency Contact Phone</Label>
-                <Input
-                  id="emergencyPhone"
-                  type="tel"
-                  value={formData.emergencyPhone}
-                  onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
-                />
-              </div>
-            </div>
+                <div>
+                  <Label htmlFor="emergency_contact_phone">Emergency Contact Phone *</Label>
+                  <Input
+                    id="emergency_contact_phone"
+                    type="tel"
+                    value={patientForm.emergency_contact_phone}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, emergency_contact_phone: e.target.value }))}
+                    required
+                  />
+                </div>
+
+                <div>
+                  <Label htmlFor="emergency_contact_relationship">Relationship</Label>
+                  <Input
+                    id="emergency_contact_relationship"
+                    value={patientForm.emergency_contact_relationship}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, emergency_contact_relationship: e.target.value }))}
+                    placeholder="e.g., Spouse, Parent, Sibling"
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
             {/* Medical Information */}
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="allergies">Known Allergies</Label>
-                <Textarea
-                  id="allergies"
-                  value={formData.allergies}
-                  onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
-                  placeholder="List any known allergies..."
-                  rows={3}
-                />
-              </div>
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Medical Information
+                </CardTitle>
+                <CardDescription>Allergies and medical history</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div>
+                  <Label htmlFor="allergies">Allergies</Label>
+                  <Textarea
+                    id="allergies"
+                    value={patientForm.allergies}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, allergies: e.target.value }))}
+                    placeholder="List any known allergies..."
+                    rows={3}
+                  />
+                </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="medicalHistory">Medical History</Label>
-                <Textarea
-                  id="medicalHistory"
-                  value={formData.medicalHistory}
-                  onChange={(e) => setFormData({ ...formData, medicalHistory: e.target.value })}
-                  placeholder="Brief medical history..."
-                  rows={4}
-                />
-              </div>
+                <div>
+                  <Label htmlFor="medical_history">Medical History</Label>
+                  <Textarea
+                    id="medical_history"
+                    value={patientForm.medical_history}
+                    onChange={(e) => setPatientForm(prev => ({ ...prev, medical_history: e.target.value }))}
+                    placeholder="Previous medical conditions, surgeries, etc..."
+                    rows={4}
+                  />
+                </div>
+              </CardContent>
+            </Card>
 
-              <div className="space-y-2">
-                <Label htmlFor="insurance">Insurance Information</Label>
-                <Input
-                  id="insurance"
-                  value={formData.insurance}
-                  onChange={(e) => setFormData({ ...formData, insurance: e.target.value })}
-                  placeholder="Insurance provider and policy number"
-                />
-              </div>
-            </div>
+            {/* Insurance Information */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <FileText className="h-5 w-5" />
+                  Insurance Information
+                </CardTitle>
+                <CardDescription>Insurance provider and policy details</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="insurance_provider">Insurance Provider</Label>
+                    <Input
+                      id="insurance_provider"
+                      value={patientForm.insurance_provider}
+                      onChange={(e) => setPatientForm(prev => ({ ...prev, insurance_provider: e.target.value }))}
+                      placeholder="e.g., Blue Cross, Aetna"
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="insurance_number">Insurance Number</Label>
+                    <Input
+                      id="insurance_number"
+                      value={patientForm.insurance_number}
+                      onChange={(e) => setPatientForm(prev => ({ ...prev, insurance_number: e.target.value }))}
+                      placeholder="Policy number"
+                    />
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
 
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
-
-            <div className="flex gap-4">
-              <Button type="submit" disabled={loading}>
-                {loading ? "Creating Patient..." : "Create Patient"}
+          <div className="flex justify-end gap-4 mt-8">
+            <Link href="/dashboard/patients">
+              <Button type="button" variant="outline">
+                Cancel
               </Button>
-              <Link href="/dashboard/patients">
-                <Button type="button" variant="outline">
-                  Cancel
-                </Button>
-              </Link>
-            </div>
-          </form>
-        </CardContent>
-      </Card>
+            </Link>
+            <Button type="submit" disabled={loading}>
+              {loading ? "Registering..." : "Register Patient"}
+            </Button>
+          </div>
+        </form>
+      </div>
     </div>
   )
 }

@@ -23,7 +23,6 @@ import {
   Activity,
   Server,
   Wifi,
-  Thermometer,
 } from "lucide-react"
 import Link from "next/link"
 

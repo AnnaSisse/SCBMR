@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import Link from "next/link"
@@ -21,6 +24,31 @@ import {
 } from "lucide-react"
 
 export default function PatientsPage() {
+  const [patients, setPatients] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    fetchPatients()
+  }, [])
+
+  const fetchPatients = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch("/api/patients")
+      if (!res.ok) throw new Error("Failed to fetch patients")
+      const data = await res.json()
+      console.log('Patients data:', data)
+      setPatients(data.data || [])
+    } catch (err: any) {
+      console.error('Error fetching patients:', err)
+      setError(err.message || "Error fetching patients")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div>
       <div className="md:flex md:items-center md:justify-between">
@@ -40,10 +68,58 @@ export default function PatientsPage() {
           </Link>
         </div>
       </div>
-
-      {/* Rest of the page content */}
       <div className="mt-6">
-        <p>Patient list and other components will go here.</p>
+        {loading ? (
+          <div className="flex items-center justify-center p-8">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-gray-600">Loading patients...</p>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="text-center p-8">
+            <div className="text-red-500 mb-4">
+              <p className="font-medium">Error loading patients</p>
+              <p className="text-sm">{error}</p>
+            </div>
+            <Button onClick={fetchPatients} variant="outline">
+              Try Again
+            </Button>
+          </div>
+        ) : patients.length === 0 ? (
+          <div className="text-center p-8">
+            <Users className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+            <p className="text-gray-600 mb-4">No patients found.</p>
+            <Link href="/dashboard/patients/new">
+              <Button>Add Your First Patient</Button>
+            </Link>
+          </div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {patients.map((p) => (
+                <TableRow key={p.patient_id}>
+                  <TableCell className="font-medium">{p.first_name} {p.last_name}</TableCell>
+                  <TableCell>{p.email || "No email"}</TableCell>
+                  <TableCell>{p.phone_number || "No phone"}</TableCell>
+                  <TableCell>
+                    <Link href={`/dashboard/patients/${p.patient_id}`}>
+                      <Button size="sm" variant="outline">View Details</Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
     </div>
   )

@@ -5,6 +5,11 @@ DROP TABLE IF EXISTS user_roles;
 DROP TABLE IF EXISTS lab_results;
 DROP TABLE IF EXISTS notifications;
 DROP TABLE IF EXISTS billing;
+DROP TABLE IF EXISTS referrals;
+DROP TABLE IF EXISTS messages;
+DROP TABLE IF EXISTS tasks;
+DROP TABLE IF EXISTS medical_images;
+DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS prescription_medications;
 DROP TABLE IF EXISTS appointments;
 DROP TABLE IF EXISTS medical_records;
@@ -175,4 +180,93 @@ CREATE TABLE IF NOT EXISTS user_roles (
     PRIMARY KEY (user_id, role_id),
     FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE,
     FOREIGN KEY (role_id) REFERENCES roles(role_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS referrals (
+    referral_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    referred_to_department VARCHAR(100),
+    referred_to_doctor INT,
+    reason TEXT,
+    referral_date DATE,
+    status VARCHAR(50),
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE SET NULL,
+    FOREIGN KEY (referred_to_doctor) REFERENCES doctors(doctor_id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS messages (
+    message_id INT AUTO_INCREMENT PRIMARY KEY,
+    sender_id INT,
+    receiver_id INT,
+    content TEXT,
+    sent_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    is_read BOOLEAN DEFAULT FALSE,
+    FOREIGN KEY (sender_id) REFERENCES users(user_id) ON DELETE CASCADE,
+    FOREIGN KEY (receiver_id) REFERENCES users(user_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS tasks (
+    task_id INT AUTO_INCREMENT PRIMARY KEY,
+    doctor_id INT,
+    patient_id INT,
+    description TEXT,
+    due_date DATE,
+    status VARCHAR(50),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS medical_images (
+    image_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    image_url VARCHAR(255),
+    description TEXT,
+    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE SET NULL
+);
+
+CREATE TABLE IF NOT EXISTS orders (
+    order_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    order_type VARCHAR(100),
+    status VARCHAR(50),
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS hospitalisations (
+    hospitalisation_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    admission_date DATE NOT NULL,
+    discharge_date DATE,
+    ward VARCHAR(100),
+    room VARCHAR(50),
+    reason TEXT,
+    status VARCHAR(50) DEFAULT 'admitted',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
+);
+
+CREATE TABLE IF NOT EXISTS examinations (
+    examination_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    date DATE NOT NULL,
+    type VARCHAR(100),
+    result TEXT,
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
 ); 

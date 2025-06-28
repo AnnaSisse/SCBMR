@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { createAppointment, getPatientAppointments } from '@/lib/db/medical_queries';
-import { query } from '@/lib/db/queries';
 
 // POST /api/appointments - Schedule a new appointment
 export async function POST(request: Request) {

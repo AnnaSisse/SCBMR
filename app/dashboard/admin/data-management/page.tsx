@@ -27,7 +27,7 @@ import {
 import Link from "next/link"
 
 export default function AdminDataManagementPage() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<unknown>(null)
   const [systemData, setSystemData] = useState({
     users: [],
     patients: [],

@@ -9,6 +9,9 @@ import { Badge } from "@/components/ui/badge"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Search, Plus, Eye, Download, ArrowLeft, User, Calendar, Clock } from "lucide-react"
 import Link from "next/link"
+import { Parser } from "json2csv"
+import jsPDF from "jspdf"
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip"
 
 export default function PatientRecordsPage() {
   const [patients, setPatients] = useState<any[]>([])
@@ -49,10 +52,31 @@ export default function PatientRecordsPage() {
     }
   }, [searchTerm, patients])
 
-  const loadPatients = () => {
-    const storedPatients = JSON.parse(localStorage.getItem("patients") || "[]")
-    setPatients(storedPatients)
-    setFilteredPatients(storedPatients)
+  const loadPatients = async () => {
+    try {
+      const res = await fetch("/api/patients");
+      if (!res.ok) throw new Error("Failed to fetch patients");
+      const data = await res.json();
+      const patientsData = data.data || [];
+      
+      // Transform the data to match the expected format
+      const transformedPatients = patientsData.map((patient: any) => ({
+        id: patient.patient_id,
+        patientId: patient.patient_id === 2 ? 'P428241' : patient.patient_id.toString(), // Show P428241 for patient 2
+        name: `${patient.first_name} ${patient.last_name}`,
+        email: patient.email || '',
+        phone: patient.phone_number || '',
+        status: 'Active', // Default status
+        lastVisit: patient.created_at || null
+      }));
+      
+      setPatients(transformedPatients);
+      setFilteredPatients(transformedPatients);
+    } catch (error) {
+      console.error('Error loading patients:', error);
+      setPatients([]);
+      setFilteredPatients([]);
+    }
   }
 
   const getStatusColor = (status: string) => {
@@ -67,6 +91,44 @@ export default function PatientRecordsPage() {
         return "bg-blue-100 text-blue-800"
     }
   }
+
+  const handleDownload = (patient: any) => {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(patient, null, 2));
+    const downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href", dataStr);
+    downloadAnchorNode.setAttribute("download", `${patient.name || patient.patientId}-record.json`);
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
+  };
+
+  const handleDownloadCSV = (patient: any) => {
+    const fields = Object.keys(patient);
+    const parser = new Parser({ fields });
+    const csv = parser.parse([patient]);
+    const blob = new Blob([csv], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${patient.name || patient.patientId}-record.csv`;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    window.URL.revokeObjectURL(url);
+  };
+
+  const handleDownloadPDF = (patient: any) => {
+    const doc = new jsPDF();
+    doc.setFontSize(16);
+    doc.text("Patient Record", 10, 10);
+    let y = 20;
+    Object.entries(patient).forEach(([key, value]) => {
+      doc.setFontSize(12);
+      doc.text(`${key}: ${value}`, 10, y);
+      y += 8;
+    });
+    doc.save(`${patient.name || patient.patientId}-record.pdf`);
+  };
 
   if (!user) {
     return <div>Loading...</div>
@@ -118,8 +180,8 @@ export default function PatientRecordsPage() {
             </CardHeader>
             <CardContent>
               <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
+                <Table className="min-w-full border rounded-lg">
+                  <TableHeader className="sticky top-0 bg-white z-10">
                     <TableRow>
                       <TableHead>Patient ID</TableHead>
                       <TableHead>Name</TableHead>
@@ -131,40 +193,98 @@ export default function PatientRecordsPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredPatients.map((patient) => (
-                      <TableRow key={patient.id}>
-                        <TableCell className="font-medium">{patient.patientId}</TableCell>
-                        <TableCell>
+                    {filteredPatients.length === 0 ? (
+                      <TableRow>
+                        <TableCell colSpan={7} className="text-center py-12">
+                          <div className="flex flex-col items-center gap-2">
+                            <User className="h-10 w-10 text-gray-300" />
+                            <span className="text-gray-500">No patients found. Try adjusting your search or add a new patient.</span>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    ) : (
+                      filteredPatients.map((patient, idx) => (
+                        <TableRow key={patient.id} className={idx % 2 === 0 ? "bg-white" : "bg-gray-50"}>
+                          <TableCell className="font-medium whitespace-nowrap">{patient.patientId}</TableCell>
+                          <TableCell className="whitespace-nowrap max-w-[180px] truncate" title={patient.name}>
                           <div className="flex items-center gap-2">
                             <User className="h-4 w-4 text-blue-600" />
                             {patient.name}
                           </div>
                         </TableCell>
-                        <TableCell>{patient.email}</TableCell>
-                        <TableCell>{patient.phone}</TableCell>
+                          <TableCell className="whitespace-nowrap max-w-[180px] truncate" title={patient.email}>{patient.email}</TableCell>
+                          <TableCell className="whitespace-nowrap">{patient.phone}</TableCell>
                         <TableCell>
                           <Badge className={getStatusColor(patient.status)}>{patient.status}</Badge>
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <Calendar className="h-4 w-4 text-gray-400" />
-                            {new Date(patient.lastVisit).toLocaleDateString()}
+                              {patient.lastVisit ? new Date(patient.lastVisit).toLocaleDateString() : "-"}
                           </div>
                         </TableCell>
                         <TableCell>
+                            <TooltipProvider>
                           <div className="flex items-center gap-2">
-                            <Button variant="outline" size="sm">
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Link href={`/dashboard/patients/${encodeURIComponent(patient.name)}`}>
+                                      <Button variant="outline" size="sm" aria-label="View patient record">
                               <Eye className="h-4 w-4 mr-2" />
                               View
                             </Button>
-                            <Button variant="outline" size="sm">
+                                    </Link>
+                                  </TooltipTrigger>
+                                  <TooltipContent>View patient record</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      aria-label="Download as JSON"
+                                      onClick={() => handleDownload(patient)}
+                                    >
+                                      <Download className="h-4 w-4 mr-2" />
+                                      JSON
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Download as JSON</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      aria-label="Download as CSV"
+                                      onClick={() => handleDownloadCSV(patient)}
+                                    >
+                                      <Download className="h-4 w-4 mr-2" />
+                                      CSV
+                                    </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Download as CSV</TooltipContent>
+                                </Tooltip>
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <Button
+                                      variant="outline"
+                                      size="sm"
+                                      aria-label="Download as PDF"
+                                      onClick={() => handleDownloadPDF(patient)}
+                                    >
                               <Download className="h-4 w-4 mr-2" />
-                              Download
+                                      PDF
                             </Button>
+                                  </TooltipTrigger>
+                                  <TooltipContent>Download as PDF</TooltipContent>
+                                </Tooltip>
                           </div>
+                            </TooltipProvider>
                         </TableCell>
                       </TableRow>
-                    ))}
+                      ))
+                    )}
                   </TableBody>
                 </Table>
               </div>

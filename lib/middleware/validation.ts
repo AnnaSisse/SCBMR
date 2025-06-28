@@ -70,7 +70,7 @@ function isValidPhoneNumber(phone: string): boolean {
 }
 
 // Main validation function
-export function validateRequest(schemaName: keyof typeof schemas, data: any) {
+export function validateRequest(schemaName: keyof typeof schemas, data: Record<string, unknown>) {
     const schema = schemas[schemaName];
     const errors: string[] = [];
 
@@ -96,17 +96,17 @@ export function validateRequest(schemaName: keyof typeof schemas, data: any) {
                     }
                     break;
                 case 'date':
-                    if (!isValidDate(data[field])) {
+                    if (!isValidDate(data[field] as string)) {
                         errors.push(`${field} must be a valid date`);
                     }
                     break;
             }
 
             // Additional format validations
-            if (field === 'email' && data[field] && !isValidEmail(data[field])) {
+            if (field === 'email' && data[field] && !isValidEmail(data[field] as string)) {
                 errors.push('Invalid email format');
             }
-            if (field === 'phone_number' && data[field] && !isValidPhoneNumber(data[field])) {
+            if (field === 'phone_number' && data[field] && !isValidPhoneNumber(data[field] as string)) {
                 errors.push('Invalid phone number format');
             }
         }

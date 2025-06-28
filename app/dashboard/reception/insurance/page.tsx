@@ -55,9 +55,9 @@ export default function InsurancePage() {
       patientName: "John Patient",
       serviceDate: "2024-01-10",
       services: ["Office Visit", "Lab Work"],
-      totalAmount: "$250.00",
-      insurancePaid: "$200.00",
-      patientBalance: "$50.00",
+      totalAmount: "150,000 FCFA",
+      insurancePaid: "120,000 FCFA",
+      patientBalance: "30,000 FCFA",
       status: "paid",
     },
     {
@@ -65,9 +65,9 @@ export default function InsurancePage() {
       patientName: "Emily Davis",
       serviceDate: "2024-01-12",
       services: ["Consultation", "X-Ray"],
-      totalAmount: "$180.00",
-      insurancePaid: "$144.00",
-      patientBalance: "$36.00",
+      totalAmount: "108,000 FCFA",
+      insurancePaid: "86,400 FCFA",
+      patientBalance: "21,600 FCFA",
       status: "pending",
     },
     {
@@ -75,9 +75,9 @@ export default function InsurancePage() {
       patientName: "Robert Wilson",
       serviceDate: "2024-01-14",
       services: ["Follow-up", "Prescription"],
-      totalAmount: "$120.00",
-      insurancePaid: "$96.00",
-      patientBalance: "$24.00",
+      totalAmount: "72,000 FCFA",
+      insurancePaid: "57,600 FCFA",
+      patientBalance: "14,400 FCFA",
       status: "overdue",
     },
   ]
@@ -126,6 +126,32 @@ export default function InsurancePage() {
       default:
         return "bg-blue-100 text-blue-800"
     }
+  }
+
+  const handleContact = (patientName: string, phoneNumber?: string) => {
+    // Default phone numbers for patients (in real app, these would come from patient data)
+    const patientPhones: { [key: string]: string } = {
+      "John Patient": "+237 6 1234 5678",
+      "Emily Davis": "+237 6 2345 6789", 
+      "Robert Wilson": "+237 6 3456 7890",
+      "Maria Rodriguez": "+237 6 4567 8901",
+      "James Thompson": "+237 6 5678 9012",
+      "Sarah Johnson": "+237 6 6789 0123"
+    }
+    
+    const phone = phoneNumber || patientPhones[patientName] || "+237 6 0000 0000"
+    
+    // Use the Web API to make a phone call
+    if (navigator.userAgent.includes('Mobile') || navigator.userAgent.includes('Android') || navigator.userAgent.includes('iPhone')) {
+      // For mobile devices, use tel: protocol
+      window.location.href = `tel:${phone}`
+    } else {
+      // For desktop, show a dialog with the phone number
+      alert(`Calling ${patientName} at ${phone}\n\nFor desktop: Please use your phone to call this number.\nFor mobile: The call should start automatically.`)
+    }
+    
+    // Log the contact attempt
+    console.log(`Contacting ${patientName} at ${phone}`)
   }
 
   return (
@@ -250,12 +276,12 @@ export default function InsurancePage() {
                                 <p>
                                   <span className="font-medium">Group:</span> {verificationResult.groupNumber}
                                 </p>
-                                <p>
+                                <div>
                                   <span className="font-medium">Status:</span>
                                   <Badge className="ml-2 bg-green-100 text-green-800">
                                     {verificationResult.eligibilityStatus}
                                   </Badge>
-                                </p>
+                                </div>
                               </div>
                               <div>
                                 <p>
@@ -439,7 +465,7 @@ export default function InsurancePage() {
                           </div>
                         </div>
                         <div className="flex flex-col gap-2">
-                          <Button size="sm">
+                          <Button size="sm" onClick={() => handleContact(record.patientName)}>
                             <Phone className="h-3 w-3 mr-1" />
                             Contact
                           </Button>
