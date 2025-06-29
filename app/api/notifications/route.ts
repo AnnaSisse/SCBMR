@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { query } from '@/lib/db/config';
+import { query } from '@/lib/db/queries';
+import { ResultSetHeader } from 'mysql2';
+import pool from '@/lib/db/config';
 
 export async function GET() {
   try {
@@ -23,10 +25,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { user_id, type, title, message, action_url } = body;
 
-    const result = await query(`
+    const [result] = await pool.query(`
       INSERT INTO notifications (user_id, type, title, message, action_url, timestamp, read)
       VALUES (?, ?, ?, ?, ?, NOW(), false)
-    `, [user_id, type, title, message, action_url]);
+    `, [user_id, type, title, message, action_url]) as [ResultSetHeader, any];
 
     return NextResponse.json({ 
       message: "Notification created successfully",

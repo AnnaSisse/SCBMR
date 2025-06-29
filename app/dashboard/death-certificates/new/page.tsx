@@ -71,6 +71,10 @@ export default function NewDeathCertificatePage() {
 
       const certificateId = `DC${Date.now().toString().slice(-6)}`
 
+      const certificateData = {
+        ...formData,
+      }
+
       const newCertificate = {
         id: Date.now().toString(),
         certificateId,
@@ -78,7 +82,6 @@ export default function NewDeathCertificatePage() {
         patientName: selectedPatient.name,
         patientAge: selectedPatient.age,
         patientGender: selectedPatient.gender,
-        ...formData,
         issuedBy: user.name,
         issuedById: user.id,
         createdAt: new Date().toISOString(),

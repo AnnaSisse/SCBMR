@@ -111,6 +111,10 @@ export default function NewPrescriptionPage() {
 
       const prescriptionId = `RX${Date.now().toString().slice(-6)}`
 
+      const prescriptionData = {
+        ...formData,
+      }
+
       const newPrescription = {
         id: Date.now().toString(),
         prescriptionId,
@@ -118,7 +122,6 @@ export default function NewPrescriptionPage() {
         patientName: selectedPatient.name,
         doctorId: user.id,
         doctorName: user.name,
-        ...formData,
         refillsRemaining: Number.parseInt(formData.totalRefills),
         totalRefills: Number.parseInt(formData.totalRefills),
         createdAt: new Date().toISOString(),

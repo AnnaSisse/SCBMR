@@ -49,6 +49,7 @@ export default function LabResultsPage() {
     result_date: "",
     doctor_id: "",
     notes: "",
+    image: "",
   })
 
   useEffect(() => {
@@ -213,6 +214,7 @@ export default function LabResultsPage() {
         result_date: "",
         doctor_id: "",
         notes: "",
+        image: "",
       })
     } catch (err: any) {
       setError(err.message || "Error")
@@ -271,6 +273,7 @@ export default function LabResultsPage() {
       result_date: "",
       doctor_id: "",
       notes: "",
+      image: "",
     })
     setSelectedOrder(null)
 

@@ -1,4 +1,4 @@
-import { query } from './queries';
+import { query, queryWithResult } from './queries';
 import { encryptAES256, decryptAES256 } from '../utils';
 import { ResultSetHeader, RowDataPacket } from 'mysql2';
 import pool from './config';
@@ -24,23 +24,27 @@ export async function createPatient(patientData: {
         
         // Use pool directly to get insertId
         const [result] = await pool.query(
-            `INSERT INTO patients (first_name, last_name, date_of_birth, gender, phone_number, email, address, blood_type, emergency_contact_name, emergency_contact_phone, allergies, medical_history, insurance)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-        [patientData.first_name, patientData.last_name, patientData.date_of_birth, 
-             patientData.gender, patientData.phone_number, patientData.email, patientData.address,
-             patientData.blood_type, patientData.emergency_contact_name, patientData.emergency_contact_phone, patientData.allergies, patientData.medical_history, patientData.insurance]
-        );
+            'INSERT INTO patients (first_name, last_name, date_of_birth, gender, address, phone_number, email, insurance, emergency_contact_name) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+            [
+                patientData.first_name,
+                patientData.last_name,
+                patientData.date_of_birth,
+                patientData.gender,
+                patientData.address,
+                patientData.phone_number,
+                patientData.email,
+                patientData.insurance,
+                patientData.emergency_contact_name
+            ]
+        ) as [ResultSetHeader, any];
         
         console.log('Patient inserted with ID:', result.insertId);
         
-    // Get the inserted patient
+        // Fetch the created patient
         const rows = await query('SELECT * FROM patients WHERE patient_id = ?', [result.insertId]);
-        const patient = rows[0];
-        
-        console.log('Retrieved patient:', patient);
-    return patient;
+        return rows[0];
     } catch (error) {
-        console.error('Error in createPatient function:', error);
+        console.error('Error creating patient:', error);
         throw error;
     }
 }
@@ -81,20 +85,14 @@ export async function createUser(userData: {
     phone?: string;
     department?: string;
 }) {
-    try {
-        const result = await query(
-            `INSERT INTO users (first_name, last_name, email, password, role, phone, department)
-             VALUES (?, ?, ?, ?, ?, ?, ?)`,
-            [userData.first_name, userData.last_name, userData.email, userData.password, userData.role, userData.phone, userData.department]
-        );
-        const users = await query('SELECT * FROM users WHERE user_id = ?', [result.insertId]);
-        return users[0];
-    } catch (error: unknown) {
-        if (error instanceof Error && error.message === 'ER_DUP_ENTRY') {
-            throw new Error('DUPLICATE_EMAIL');
-        }
-        throw error;
-    }
+    const [result] = await pool.query(
+        `INSERT INTO users (first_name, last_name, email, password, role, phone, department)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [userData.first_name, userData.last_name, userData.email, 
+         userData.password, userData.role || 'user', userData.phone, userData.department]
+    ) as [ResultSetHeader, any];
+    const users = await query('SELECT * FROM users WHERE user_id = ?', [result.insertId]);
+    return users[0];
 }
 
 export async function findUserByCredentials(credentials: { email: string; password: string; role: string; }) {
@@ -660,4 +658,61 @@ export async function updateHospitalisationDischarge(hospitalisationId: number, 
     ) as [ResultSetHeader, unknown];
     const [[hospitalisation]] = await query('SELECT * FROM hospitalisations WHERE hospitalisation_id = ?', [hospitalisationId]) as [RowDataPacket[][], unknown];
     return hospitalisation;
+}
+
+// Patient Contact Log Operations
+export async function getPatientContactLog(patientId: number) {
+    const rows = await query(
+        `SELECT * FROM patient_contact_log 
+         WHERE patient_id = ? 
+         ORDER BY contact_date DESC`,
+        [patientId]
+    );
+    return rows;
+}
+
+export async function addPatientContactLog(contactData: {
+    patient_id: number;
+    contact_type: string;
+    contact_date: Date;
+    notes: string;
+    contact_method: string;
+}) {
+    const [result] = await query(
+        `INSERT INTO patient_contact_log (patient_id, contact_type, contact_date, notes, contact_method)
+         VALUES (?, ?, ?, ?, ?)`,
+        [contactData.patient_id, contactData.contact_type, contactData.contact_date, 
+         contactData.notes, contactData.contact_method]
+    ) as [ResultSetHeader, unknown];
+    const [[contact]] = await query('SELECT * FROM patient_contact_log WHERE contact_id = ?', [result.insertId]) as [RowDataPacket[][], unknown];
+    return contact;
+}
+
+// Patient Medical History Operations
+export async function getPatientMedicalHistory(patientId: number) {
+    const rows = await query(
+        `SELECT * FROM patient_medical_history 
+         WHERE patient_id = ? 
+         ORDER BY history_date DESC`,
+        [patientId]
+    );
+    return rows;
+}
+
+export async function addPatientMedicalHistory(historyData: {
+    patient_id: number;
+    condition: string;
+    diagnosis_date: Date;
+    treatment: string;
+    status: string;
+    notes?: string;
+}) {
+    const [result] = await query(
+        `INSERT INTO patient_medical_history (patient_id, condition, diagnosis_date, treatment, status, notes)
+         VALUES (?, ?, ?, ?, ?, ?)`,
+        [historyData.patient_id, historyData.condition, historyData.diagnosis_date, 
+         historyData.treatment, historyData.status, historyData.notes]
+    ) as [ResultSetHeader, unknown];
+    const [[history]] = await query('SELECT * FROM patient_medical_history WHERE history_id = ?', [result.insertId]) as [RowDataPacket[][], unknown];
+    return history;
 } 

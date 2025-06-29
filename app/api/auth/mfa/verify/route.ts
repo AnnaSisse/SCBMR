@@ -10,7 +10,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ message: 'user_id and code are required' }, { status: 400 });
     }
     // Fetch user's MFA secret
-    const [user] = await query('SELECT mfa_secret FROM users WHERE user_id = ?', [user_id]);
+    const users = await query('SELECT mfa_secret FROM users WHERE user_id = ?', [user_id]);
+    const user = users[0];
     if (!user || !user.mfa_secret) {
       return NextResponse.json({ message: 'MFA not set up for this user' }, { status: 400 });
     }

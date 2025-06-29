@@ -1,5 +1,5 @@
 {
-  "name": "my-v0-project",
+  "name": "Secure Cloud-Based Medical Records",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "postinstall": "next telemetry disable",
     "db:init": "node scripts/init-database.js",
     "db:check": "node scripts/check-connections.js",
     "db:seed": "node scripts/seed-complete-system.js",

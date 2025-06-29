@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import {
   Stethoscope,
   Users,
@@ -23,6 +24,7 @@ import {
   MapPin,
   Globe,
   Zap,
+  AlertTriangle,
 } from "lucide-react"
 
 interface User {
@@ -40,6 +42,8 @@ export default function HomePage() {
     totalAppointments: 0,
     successRate: 98,
   })
+  const [healthStatus, setHealthStatus] = useState<any>(null)
+  const [isLoading, setIsLoading] = useState(true)
   const router = useRouter()
 
   useEffect(() => {
@@ -48,19 +52,37 @@ export default function HomePage() {
       setUser(JSON.parse(userData))
     }
     loadStats()
+    checkHealth()
   }, [])
 
-  const loadStats = () => {
-    const patients = JSON.parse(localStorage.getItem("patients") || "[]")
-    const users = JSON.parse(localStorage.getItem("users") || "[]")
-    const appointments = JSON.parse(localStorage.getItem("appointments") || "[]")
+  const checkHealth = async () => {
+    try {
+      const response = await fetch('/api/health')
+      const data = await response.json()
+      setHealthStatus(data)
+    } catch (error) {
+      console.error('Health check failed:', error)
+      setHealthStatus({ status: 'error', message: 'Unable to connect to backend' })
+    } finally {
+      setIsLoading(false)
+    }
+  }
 
-    setStats({
-      totalPatients: patients.length,
-      totalDoctors: users.filter((u: User) => u.role === "Doctor").length,
-      totalAppointments: appointments.length,
-      successRate: 98,
-    })
+  const loadStats = () => {
+    try {
+      const patients = JSON.parse(localStorage.getItem("patients") || "[]")
+      const users = JSON.parse(localStorage.getItem("users") || "[]")
+      const appointments = JSON.parse(localStorage.getItem("appointments") || "[]")
+
+      setStats({
+        totalPatients: patients.length,
+        totalDoctors: users.filter((u: User) => u.role === "Doctor").length,
+        totalAppointments: appointments.length,
+        successRate: 98,
+      })
+    } catch (error) {
+      console.error('Error loading stats:', error)
+    }
   }
 
   const handleGetStarted = () => {
@@ -134,6 +156,19 @@ export default function HomePage() {
               </div>
             </div>
             <div className="flex gap-3">
+              {/* System Status Indicator */}
+              {!isLoading && healthStatus && (
+                <div className="flex items-center gap-2">
+                  <Badge 
+                    variant={healthStatus.status === 'healthy' ? 'default' : 'destructive'}
+                    className={healthStatus.status === 'healthy' ? 'bg-green-100 text-green-700 border-green-200' : 'bg-red-100 text-red-700 border-red-200'}
+                  >
+                    <Activity className="h-3 w-3 mr-1" />
+                    {healthStatus.status === 'healthy' ? 'System Online' : 'System Issues'}
+                  </Badge>
+                </div>
+              )}
+              
               {user ? (
                 <div className="flex items-center gap-4">
                   <Badge variant="outline" className="bg-green-50 text-green-700 border-green-200">
@@ -166,6 +201,25 @@ export default function HomePage() {
           </div>
         </div>
       </header>
+
+      {/* System Status Alert */}
+      {!isLoading && healthStatus && healthStatus.status !== 'healthy' && (
+        <div className="bg-yellow-50 border-b border-yellow-200">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3">
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertDescription className="text-sm">
+                <strong>System Status:</strong> {healthStatus.message || 'Some services are experiencing issues'}
+                {healthStatus.database && (
+                  <span className="block mt-1 text-xs">
+                    Database: {healthStatus.database.host === 'not-set' ? 'Not configured' : 'Connected'}
+                  </span>
+                )}
+              </AlertDescription>
+            </Alert>
+          </div>
+        </div>
+      )}
 
       {/* Hero Section */}
       <section className="relative py-20 px-4 overflow-hidden">

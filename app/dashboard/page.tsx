@@ -61,13 +61,13 @@ import {
   TrendingDown,
   FlaskConical,
   HeartPulse,
-  User as UserIcon,
+  UserIcon,
   Lock,
   BookUser,
   Briefcase,
-  Boxes,
   MessageCircle,
-  Camera
+  Camera,
+  Boxes,
 } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -76,6 +76,7 @@ interface User {
   id: number;
   name: string;
   role: string;
+  profilePicture?: string;
   // add other fields as needed
 }
 

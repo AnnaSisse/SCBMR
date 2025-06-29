@@ -1,8 +1,25 @@
 import { NextResponse } from 'next/server';
 import { query } from '@/lib/db/queries';
 
+interface ConnectionResults {
+    environment: Record<string, string>;
+    basicConnection: boolean;
+    databaseConnection: boolean;
+    tables: string[];
+    errors: string[];
+    serverInfo?: {
+        time: string;
+        version: string;
+    };
+    tableStatus?: Record<string, {
+        exists: boolean;
+        columns?: number;
+        error?: string;
+    }>;
+}
+
 export async function GET() {
-    const results = {
+    const results: ConnectionResults = {
         environment: {},
         basicConnection: false,
         databaseConnection: false,
@@ -36,7 +53,7 @@ export async function GET() {
         try {
             const tables = await query('SHOW TABLES');
             results.databaseConnection = true;
-            results.tables = tables.map(table => Object.values(table)[0]);
+            results.tables = tables.map((table: any) => Object.values(table)[0] as string);
         } catch (error) {
             results.errors.push(`Database connection failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
         }

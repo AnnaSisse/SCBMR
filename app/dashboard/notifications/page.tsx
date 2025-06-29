@@ -21,6 +21,7 @@ import {
 } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import React from 'react'
 
 interface Notification {
   id: string
@@ -72,7 +73,8 @@ export default function NotificationsPage() {
         message: "Patient #12345 has been successfully discharged from Ward A",
         timestamp: new Date().toISOString(),
         read: false,
-        action_url: "/dashboard/hospitalisations"
+        action_url: "/dashboard/hospitalisations",
+        user_id: 1
       },
       {
         id: "2",
@@ -81,7 +83,8 @@ export default function NotificationsPage() {
         message: "Blood test results for Patient #12346 are now available",
         timestamp: new Date(Date.now() - 3600000).toISOString(),
         read: false,
-        action_url: "/dashboard/examinations/results"
+        action_url: "/dashboard/examinations/results",
+        user_id: 1
       },
       {
         id: "3",
@@ -90,7 +93,8 @@ export default function NotificationsPage() {
         message: "New appointment scheduled for tomorrow at 10:00 AM",
         timestamp: new Date(Date.now() - 7200000).toISOString(),
         read: true,
-        action_url: "/dashboard/appointments"
+        action_url: "/dashboard/appointments",
+        user_id: 1
       },
       {
         id: "4",
@@ -98,7 +102,8 @@ export default function NotificationsPage() {
         title: "System Maintenance",
         message: "Scheduled maintenance will occur tonight from 2:00 AM to 4:00 AM",
         timestamp: new Date(Date.now() - 10800000).toISOString(),
-        read: false
+        read: false,
+        user_id: 1
       }
     ]
     setNotifications(sampleNotifications)
@@ -311,7 +316,7 @@ function NotificationCard({
   notification: Notification
   onMarkAsRead: (id: string) => void
   onDelete: (id: string) => void
-  getNotificationIcon: (type: string) => JSX.Element
+  getNotificationIcon: (type: string) => React.JSX.Element
   getNotificationColor: (type: string) => string
 }) {
   return (

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server"
-import { query } from "@/lib/db/config"
+import { query } from "@/lib/db/queries"
 
 export async function PATCH(
   request: NextRequest,

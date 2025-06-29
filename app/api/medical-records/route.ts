@@ -30,7 +30,7 @@ export const POST = requireRole(['Doctor', 'Admin'])(async function POST(request
             user_id: userId,
             action: 'CREATE',
             resource: 'medical_record',
-            resource_id: record?.record_id,
+            resource_id: record?.id,
             details: JSON.stringify({ patient_id: body.patient_id, doctor_id: body.doctor_id }),
             ip_address: typeof ip === 'string' ? ip : ''
         });
