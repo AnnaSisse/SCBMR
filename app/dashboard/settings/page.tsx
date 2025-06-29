@@ -32,7 +32,7 @@ export default function SettingsPage() {
   })
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -64,7 +64,7 @@ export default function SettingsPage() {
       profilePicture: profileData.profilePicture,
     }
     
-    localStorage.setItem("currentUser", JSON.stringify(updatedUser))
+    safeLocalStorage.setItem("currentUser", JSON.stringify(updatedUser))
     setCurrentUser(updatedUser)
     toast.success("Profile updated successfully")
   }

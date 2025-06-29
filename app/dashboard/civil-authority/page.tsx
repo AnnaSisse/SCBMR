@@ -18,7 +18,7 @@ export default function CivilAuthorityPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -36,8 +36,8 @@ export default function CivilAuthorityPage() {
   }, [router])
 
   const loadCertificates = () => {
-    const birthCerts = JSON.parse(localStorage.getItem("birthCertificates") || "[]")
-    const deathCerts = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
+    const birthCerts = JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]")
+    const deathCerts = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
     setBirthCertificates(birthCerts)
     setDeathCertificates(deathCerts)
   }
@@ -57,10 +57,10 @@ export default function CivilAuthorityPage() {
     })
 
     if (type === "birth") {
-      localStorage.setItem("birthCertificates", JSON.stringify(updatedCerts))
+      safeLocalStorage.setItem("birthCertificates", JSON.stringify(updatedCerts))
       setBirthCertificates(updatedCerts)
     } else {
-      localStorage.setItem("deathCertificates", JSON.stringify(updatedCerts))
+      safeLocalStorage.setItem("deathCertificates", JSON.stringify(updatedCerts))
       setDeathCertificates(updatedCerts)
     }
   }
@@ -80,10 +80,10 @@ export default function CivilAuthorityPage() {
     })
 
     if (type === "birth") {
-      localStorage.setItem("birthCertificates", JSON.stringify(updatedCerts))
+      safeLocalStorage.setItem("birthCertificates", JSON.stringify(updatedCerts))
       setBirthCertificates(updatedCerts)
     } else {
-      localStorage.setItem("deathCertificates", JSON.stringify(updatedCerts))
+      safeLocalStorage.setItem("deathCertificates", JSON.stringify(updatedCerts))
       setDeathCertificates(updatedCerts)
     }
   }

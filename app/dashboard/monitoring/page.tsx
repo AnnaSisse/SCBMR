@@ -39,7 +39,7 @@ export default function RealTimeMonitoringPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -77,7 +77,7 @@ export default function RealTimeMonitoringPage() {
 
     // Simulate patient vitals monitoring
     const updatePatientVitals = () => {
-      const patients = JSON.parse(localStorage.getItem("patients") || "[]")
+      const patients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
       const vitals = patients.slice(0, 5).map((patient: any) => ({
         id: patient.id,
         name: patient.name,

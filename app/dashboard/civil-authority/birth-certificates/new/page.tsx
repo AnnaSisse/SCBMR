@@ -41,7 +41,7 @@ export default function NewBirthCertificatePage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -62,7 +62,7 @@ export default function NewBirthCertificatePage() {
     setError("")
 
     try {
-      const certificates = JSON.parse(localStorage.getItem("birthCertificates") || "[]")
+      const certificates = JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]")
       const certificateId = `BC${Date.now().toString().slice(-6)}`
 
       const newCertificate = {
@@ -75,7 +75,7 @@ export default function NewBirthCertificatePage() {
       }
 
       certificates.push(newCertificate)
-      localStorage.setItem("birthCertificates", JSON.stringify(certificates))
+      safeLocalStorage.setItem("birthCertificates", JSON.stringify(certificates))
 
       router.push("/dashboard/civil-authority")
     } catch (err) {

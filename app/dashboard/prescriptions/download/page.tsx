@@ -25,7 +25,7 @@ export default function PrescriptionDownloadPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -35,7 +35,7 @@ export default function PrescriptionDownloadPage() {
     setUser(currentUser)
 
     // Load prescriptions
-    const prescriptionsData = JSON.parse(localStorage.getItem("prescriptions") || "[]")
+    const prescriptionsData = JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]")
     setPrescriptions(prescriptionsData)
 
     // Set default date range (last 30 days)

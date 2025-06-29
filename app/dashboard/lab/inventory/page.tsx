@@ -80,7 +80,7 @@ export default function InventoryPage() {
 
   useEffect(() => {
     // Load inventory data from localStorage or generate sample data
-    const savedInventory = localStorage.getItem("labInventory")
+    const savedInventory = safeLocalStorage.getItem("labInventory")
     if (savedInventory) {
       setInventory(JSON.parse(savedInventory))
     } else {
@@ -164,7 +164,7 @@ export default function InventoryPage() {
       },
     ]
     setInventory(sampleData)
-    localStorage.setItem("labInventory", JSON.stringify(sampleData))
+    safeLocalStorage.setItem("labInventory", JSON.stringify(sampleData))
   }
 
   const getStockStatus = (quantity: number, threshold: number): "In Stock" | "Low Stock" | "Out of Stock" => {
@@ -219,7 +219,7 @@ export default function InventoryPage() {
       updatedInventory = [...inventory, newItem]
     }
     setInventory(updatedInventory)
-    localStorage.setItem("labInventory", JSON.stringify(updatedInventory))
+    safeLocalStorage.setItem("labInventory", JSON.stringify(updatedInventory))
     setIsDialogOpen(false)
     setEditingItem(null)
   }
@@ -256,7 +256,7 @@ export default function InventoryPage() {
     if (confirm("Are you sure you want to delete this item?")) {
       const updatedInventory = inventory.filter((item) => item.id !== itemId)
       setInventory(updatedInventory)
-      localStorage.setItem("labInventory", JSON.stringify(updatedInventory))
+      safeLocalStorage.setItem("labInventory", JSON.stringify(updatedInventory))
     }
   }
 

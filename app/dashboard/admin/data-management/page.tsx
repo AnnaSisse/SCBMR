@@ -40,7 +40,7 @@ export default function AdminDataManagementPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -59,14 +59,14 @@ export default function AdminDataManagementPage() {
 
   const loadSystemData = () => {
     setSystemData({
-      users: JSON.parse(localStorage.getItem("users") || "[]"),
-      patients: JSON.parse(localStorage.getItem("patients") || "[]"),
-      appointments: JSON.parse(localStorage.getItem("appointments") || "[]"),
-      prescriptions: JSON.parse(localStorage.getItem("prescriptions") || "[]"),
-      consultations: JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]"),
+      users: JSON.parse(safeLocalStorage.getItem("users") || "[]"),
+      patients: JSON.parse(safeLocalStorage.getItem("patients") || "[]"),
+      appointments: JSON.parse(safeLocalStorage.getItem("appointments") || "[]"),
+      prescriptions: JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]"),
+      consultations: JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]"),
       certificates: [
-        ...JSON.parse(localStorage.getItem("birthCertificates") || "[]"),
-        ...JSON.parse(localStorage.getItem("deathCertificates") || "[]"),
+        ...JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]"),
+        ...JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]"),
       ],
     })
   }
@@ -91,7 +91,7 @@ export default function AdminDataManagementPage() {
 
   const handleDataClear = (dataType: string) => {
     if (confirm(`Are you sure you want to clear all ${dataType}? This action cannot be undone.`)) {
-      localStorage.setItem(dataType, JSON.stringify([]))
+      safeLocalStorage.setItem(dataType, JSON.stringify([]))
       loadSystemData()
     }
   }

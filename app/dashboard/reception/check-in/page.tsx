@@ -97,7 +97,7 @@ export default function ReceptionCheckInPage() {
   ])
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -177,8 +177,8 @@ export default function ReceptionCheckInPage() {
     }
 
     // Save to localStorage (in a real app, this would go to database)
-    const existingCheckIns = JSON.parse(localStorage.getItem("checkIns") || "[]")
-    localStorage.setItem("checkIns", JSON.stringify([...existingCheckIns, checkInRecord]))
+    const existingCheckIns = JSON.parse(safeLocalStorage.getItem("checkIns") || "[]")
+    safeLocalStorage.setItem("checkIns", JSON.stringify([...existingCheckIns, checkInRecord]))
 
     toast.success("Patient checked in successfully")
     

@@ -15,7 +15,7 @@ export default function AppointmentsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -26,7 +26,7 @@ export default function AppointmentsPage() {
   }, [router])
 
   const loadAppointments = () => {
-    const storedAppointments = JSON.parse(localStorage.getItem("appointments") || "[]")
+    const storedAppointments = JSON.parse(safeLocalStorage.getItem("appointments") || "[]")
     setAppointments(storedAppointments)
   }
 
@@ -50,7 +50,7 @@ export default function AppointmentsPage() {
       apt.id === appointmentId ? { ...apt, status: newStatus } : apt,
     )
     setAppointments(updatedAppointments)
-    localStorage.setItem("appointments", JSON.stringify(updatedAppointments))
+    safeLocalStorage.setItem("appointments", JSON.stringify(updatedAppointments))
   }
 
   if (!user) {

@@ -15,7 +15,7 @@ export default function SecurityPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -29,13 +29,13 @@ export default function SecurityPage() {
       return
     }
 
-    const logsData = JSON.parse(localStorage.getItem("securityLogs") || "[]")
+    const logsData = JSON.parse(safeLocalStorage.getItem("securityLogs") || "[]")
     setLogs(logsData)
   }, [router])
 
   const clearLogs = () => {
     if (confirm("Are you sure you want to clear all security logs? This action cannot be undone.")) {
-      localStorage.setItem("securityLogs", "[]")
+      safeLocalStorage.setItem("securityLogs", "[]")
       setLogs([])
     }
   }

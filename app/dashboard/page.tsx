@@ -100,7 +100,7 @@ export default function DashboardPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -114,13 +114,13 @@ export default function DashboardPage() {
   }, [router])
 
   const loadStats = (role: string) => {
-    const patients = JSON.parse(localStorage.getItem("patients") || "[]")
-    const appointments = JSON.parse(localStorage.getItem("appointments") || "[]")
-    const prescriptions = JSON.parse(localStorage.getItem("prescriptions") || "[]")
-    const consultations = JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]")
+    const patients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
+    const appointments = JSON.parse(safeLocalStorage.getItem("appointments") || "[]")
+    const prescriptions = JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]")
+    const consultations = JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]")
     const certificates = [
-      ...JSON.parse(localStorage.getItem("birthCertificates") || "[]"),
-      ...JSON.parse(localStorage.getItem("deathCertificates") || "[]"),
+      ...JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]"),
+      ...JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]"),
     ]
 
     setStats({
@@ -152,7 +152,7 @@ export default function DashboardPage() {
             </Avatar>
             <Badge variant="outline">{currentUser.role}</Badge>
             <Button variant="outline" onClick={() => {
-              localStorage.removeItem("currentUser")
+              safeLocalStorage.removeItem("currentUser")
               router.push("/auth/login")
             }}>
               Logout

@@ -36,7 +36,7 @@ export default function ReportsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -55,8 +55,8 @@ export default function ReportsPage() {
 
   const loadCertificates = () => {
     try {
-      const birthCerts = JSON.parse(localStorage.getItem("birthCertificates") || "[]")
-      const deathCerts = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
+      const birthCerts = JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]")
+      const deathCerts = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
       setBirthCertificates(birthCerts)
       setDeathCertificates(deathCerts)
     } catch (error) {

@@ -41,12 +41,12 @@ export default function MedicalImagesPage({ params }: { params: { patientId: str
 
   useEffect(() => {
     // In a real app, you'd fetch patient data. Here we'll use a placeholder.
-    const allPatients = JSON.parse(localStorage.getItem("patients") || "[]")
+    const allPatients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     const currentPatient = allPatients.find((p: any) => p.id === params.patientId)
     setPatient(currentPatient || { id: params.patientId, name: "Unknown Patient" })
 
     // Load images from localStorage
-    const allImages = JSON.parse(localStorage.getItem("medicalImages") || "[]") as MedicalImage[]
+    const allImages = JSON.parse(safeLocalStorage.getItem("medicalImages") || "[]") as MedicalImage[]
     setImages(allImages.filter((img) => img.patientId === params.patientId))
   }, [params.patientId])
 
@@ -76,9 +76,9 @@ export default function MedicalImagesPage({ params }: { params: { patientId: str
       notes: newImageData.notes,
     }
 
-    const allImages = JSON.parse(localStorage.getItem("medicalImages") || "[]")
+    const allImages = JSON.parse(safeLocalStorage.getItem("medicalImages") || "[]")
     const updatedImages = [...allImages, newImage]
-    localStorage.setItem("medicalImages", JSON.stringify(updatedImages))
+    safeLocalStorage.setItem("medicalImages", JSON.stringify(updatedImages))
 
     setImages((prev) => [...prev, newImage])
     setIsUploadDialogOpen(false)
@@ -87,9 +87,9 @@ export default function MedicalImagesPage({ params }: { params: { patientId: str
 
   const deleteImage = (imageId: string) => {
     if (confirm("Are you sure you want to delete this image?")) {
-      const allImages = JSON.parse(localStorage.getItem("medicalImages") || "[]") as MedicalImage[]
+      const allImages = JSON.parse(safeLocalStorage.getItem("medicalImages") || "[]") as MedicalImage[]
       const updatedImages = allImages.filter((img) => img.id !== imageId)
-      localStorage.setItem("medicalImages", JSON.stringify(updatedImages))
+      safeLocalStorage.setItem("medicalImages", JSON.stringify(updatedImages))
       setImages(images.filter((img) => img.id !== imageId))
       setIsViewDialogOpen(false)
     }

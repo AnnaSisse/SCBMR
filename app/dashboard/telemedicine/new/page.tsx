@@ -36,8 +36,8 @@ export default function NewTelemedicineConsultationPage() {
   }, [])
 
   const loadPatientsAndDoctors = () => {
-    const storedPatients = JSON.parse(localStorage.getItem("patients") || "[]")
-    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]")
+    const storedPatients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
+    const storedUsers = JSON.parse(safeLocalStorage.getItem("users") || "[]")
     const doctorUsers = storedUsers.filter((user: any) => user.role === "Doctor")
 
     setPatients(storedPatients)
@@ -50,7 +50,7 @@ export default function NewTelemedicineConsultationPage() {
     setError("")
 
     try {
-      const consultations = JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]")
+      const consultations = JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]")
 
       const selectedPatient = patients.find((p) => p.id === formData.patientId)
       const selectedDoctor = doctors.find((d) => d.id === formData.doctorId)
@@ -66,7 +66,7 @@ export default function NewTelemedicineConsultationPage() {
       }
 
       consultations.push(newConsultation)
-      localStorage.setItem("telemedicineConsultations", JSON.stringify(consultations))
+      safeLocalStorage.setItem("telemedicineConsultations", JSON.stringify(consultations))
 
       router.push("/dashboard/telemedicine")
     } catch (err) {

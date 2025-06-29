@@ -15,7 +15,7 @@ export default function PermissionsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -29,7 +29,7 @@ export default function PermissionsPage() {
       return
     }
 
-    const usersData = JSON.parse(localStorage.getItem("users") || "[]")
+    const usersData = JSON.parse(safeLocalStorage.getItem("users") || "[]")
     setUsers(usersData)
   }, [router])
 
@@ -46,7 +46,7 @@ export default function PermissionsPage() {
       return user
     })
 
-    localStorage.setItem("users", JSON.stringify(updatedUsers))
+    safeLocalStorage.setItem("users", JSON.stringify(updatedUsers))
     setUsers(updatedUsers)
   }
 
@@ -63,7 +63,7 @@ export default function PermissionsPage() {
       return user
     })
 
-    localStorage.setItem("users", JSON.stringify(updatedUsers))
+    safeLocalStorage.setItem("users", JSON.stringify(updatedUsers))
     setUsers(updatedUsers)
   }
 

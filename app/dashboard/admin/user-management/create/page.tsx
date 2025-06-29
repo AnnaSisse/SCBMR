@@ -41,7 +41,7 @@ export default function CreateUserPage() {
       }
 
       // Get existing users
-      const existingUsers = JSON.parse(localStorage.getItem("users") || "[]")
+      const existingUsers = JSON.parse(safeLocalStorage.getItem("users") || "[]")
       
       // Check if email already exists
       if (existingUsers.some((user: any) => user.email === formData.email)) {
@@ -63,7 +63,7 @@ export default function CreateUserPage() {
       }
 
       // Save to localStorage
-      localStorage.setItem("users", JSON.stringify([...existingUsers, newUser]))
+      safeLocalStorage.setItem("users", JSON.stringify([...existingUsers, newUser]))
 
       toast.success("User created successfully")
       router.push("/dashboard/admin/user-management")

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
@@ -11,10 +11,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ArrowLeft, User, Phone, Mail, MapPin, Calendar, FileText } from "lucide-react"
 import Link from "next/link"
 import { toast } from "sonner"
+import { safeLocalStorage } from "@/lib/utils"
 
 export default function NewPatientPage() {
   const [loading, setLoading] = useState(false)
   const [user, setUser] = useState<any>(null)
+  const [isClient, setIsClient] = useState(false)
   const router = useRouter()
 
   const [patientForm, setPatientForm] = useState({
@@ -35,15 +37,21 @@ export default function NewPatientPage() {
     insurance_number: ""
   })
 
-  useState(() => {
-    const userData = localStorage.getItem("currentUser")
+  useEffect(() => {
+    setIsClient(true)
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
     }
-    const currentUser = JSON.parse(userData)
-    setUser(currentUser)
-  })
+    try {
+      const currentUser = JSON.parse(userData)
+      setUser(currentUser)
+    } catch (error) {
+      console.error('Error parsing user data:', error)
+      router.push("/auth/login")
+    }
+  }, [router])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -74,7 +82,7 @@ export default function NewPatientPage() {
     }
   }
 
-  if (!user) return <div>Loading...</div>
+  if (!isClient || !user) return <div>Loading...</div>
 
   return (
     <div className="min-h-screen bg-gray-50 p-6">

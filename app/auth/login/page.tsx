@@ -38,7 +38,7 @@ export default function LoginPage() {
       const data = await res.json()
       if (res.ok && data.user) {
         // Store user info in localStorage
-        localStorage.setItem("currentUser", JSON.stringify(data.user))
+        safeLocalStorage.setItem("currentUser", JSON.stringify(data.user))
         router.push("/dashboard")
       } else {
         // Show backend error details if present

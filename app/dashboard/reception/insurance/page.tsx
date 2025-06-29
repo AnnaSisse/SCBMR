@@ -17,7 +17,7 @@ export default function InsurancePage() {
   const [verificationResult, setVerificationResult] = useState<any>(null)
 
   useEffect(() => {
-    const patientsData = JSON.parse(localStorage.getItem("patients") || "[]")
+    const patientsData = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     setPatients(patientsData)
   }, [])
 

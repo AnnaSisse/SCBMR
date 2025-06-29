@@ -27,7 +27,7 @@ export default function CarePlansPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -41,7 +41,7 @@ export default function CarePlansPage() {
       return
     }
 
-    const patientsData = JSON.parse(localStorage.getItem("patients") || "[]")
+    const patientsData = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     setPatients(patientsData)
   }, [router])
 
@@ -60,9 +60,9 @@ export default function CarePlansPage() {
       recordedAt: new Date().toISOString(),
     }
 
-    const existingVitalSigns = JSON.parse(localStorage.getItem("vitalSigns") || "[]")
+    const existingVitalSigns = JSON.parse(safeLocalStorage.getItem("vitalSigns") || "[]")
     const updatedVitalSigns = [...existingVitalSigns, newVitalSigns]
-    localStorage.setItem("vitalSigns", JSON.stringify(updatedVitalSigns))
+    safeLocalStorage.setItem("vitalSigns", JSON.stringify(updatedVitalSigns))
 
     // Reset form
     setVitalSigns({
@@ -95,9 +95,9 @@ export default function CarePlansPage() {
       status: "active",
     }
 
-    const existingCarePlans = JSON.parse(localStorage.getItem("carePlans") || "[]")
+    const existingCarePlans = JSON.parse(safeLocalStorage.getItem("carePlans") || "[]")
     const updatedCarePlans = [...existingCarePlans, newCarePlan]
-    localStorage.setItem("carePlans", JSON.stringify(updatedCarePlans))
+    safeLocalStorage.setItem("carePlans", JSON.stringify(updatedCarePlans))
 
     alert(`Care plan "${template.name}" created successfully for ${selectedPatient.name}!`)
   }

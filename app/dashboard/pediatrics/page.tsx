@@ -37,7 +37,7 @@ export default function PediatricsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -56,15 +56,15 @@ export default function PediatricsPage() {
   }, [router])
 
   const loadPediatricData = () => {
-    const allPatients = JSON.parse(localStorage.getItem("patients") || "[]")
+    const allPatients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     // Filter patients under 18 years old
     const children = allPatients.filter((patient: any) => patient.age < 18)
     setPediatricPatients(children)
 
-    const storedVaccinations = JSON.parse(localStorage.getItem("vaccinations") || "[]")
+    const storedVaccinations = JSON.parse(safeLocalStorage.getItem("vaccinations") || "[]")
     setVaccinations(storedVaccinations)
 
-    const storedGrowthData = JSON.parse(localStorage.getItem("growthData") || "[]")
+    const storedGrowthData = JSON.parse(safeLocalStorage.getItem("growthData") || "[]")
     setGrowthData(storedGrowthData)
   }
 
@@ -81,9 +81,9 @@ export default function PediatricsPage() {
       createdAt: new Date().toISOString(),
     }
 
-    const existingVaccinations = JSON.parse(localStorage.getItem("vaccinations") || "[]")
+    const existingVaccinations = JSON.parse(safeLocalStorage.getItem("vaccinations") || "[]")
     const updatedVaccinations = [...existingVaccinations, vaccination]
-    localStorage.setItem("vaccinations", JSON.stringify(updatedVaccinations))
+    safeLocalStorage.setItem("vaccinations", JSON.stringify(updatedVaccinations))
     setVaccinations(updatedVaccinations)
 
     setNewVaccination({
@@ -112,9 +112,9 @@ export default function PediatricsPage() {
       createdAt: new Date().toISOString(),
     }
 
-    const existingGrowthData = JSON.parse(localStorage.getItem("growthData") || "[]")
+    const existingGrowthData = JSON.parse(safeLocalStorage.getItem("growthData") || "[]")
     const updatedGrowthData = [...existingGrowthData, growthRecord]
-    localStorage.setItem("growthData", JSON.stringify(updatedGrowthData))
+    safeLocalStorage.setItem("growthData", JSON.stringify(updatedGrowthData))
     setGrowthData(updatedGrowthData)
 
     setNewGrowthRecord({

@@ -24,7 +24,7 @@ export default function HealthTrackingPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -39,7 +39,7 @@ export default function HealthTrackingPage() {
     }
 
     // Load health data from localStorage
-    const storedHealthData = JSON.parse(localStorage.getItem("healthData") || "[]")
+    const storedHealthData = JSON.parse(safeLocalStorage.getItem("healthData") || "[]")
     const userHealthData = storedHealthData.filter((data: any) => data.patientId === user.id)
     setHealthData(userHealthData)
 

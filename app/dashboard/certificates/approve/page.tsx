@@ -31,7 +31,7 @@ export default function ApproveCertificatesPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -50,8 +50,8 @@ export default function ApproveCertificatesPage() {
 
   const loadCertificates = () => {
     try {
-      const birthCerts = JSON.parse(localStorage.getItem("birthCertificates") || "[]")
-      const deathCerts = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
+      const birthCerts = JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]")
+      const deathCerts = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
       setBirthCertificates(birthCerts)
       setDeathCertificates(deathCerts)
     } catch (error) {
@@ -105,8 +105,8 @@ export default function ApproveCertificatesPage() {
       return cert
     })
 
-    localStorage.setItem("birthCertificates", JSON.stringify(updatedBirthCerts))
-    localStorage.setItem("deathCertificates", JSON.stringify(updatedDeathCerts))
+    safeLocalStorage.setItem("birthCertificates", JSON.stringify(updatedBirthCerts))
+    safeLocalStorage.setItem("deathCertificates", JSON.stringify(updatedDeathCerts))
     setBirthCertificates(updatedBirthCerts)
     setDeathCertificates(updatedDeathCerts)
     toast.success("Certificate status updated successfully")

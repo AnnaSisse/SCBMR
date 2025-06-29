@@ -27,8 +27,8 @@ export default function FunctionalCarePlansPage() {
   })
 
   useEffect(() => {
-    const patientsData = JSON.parse(localStorage.getItem("patients") || "[]")
-    const carePlansData = JSON.parse(localStorage.getItem("carePlans") || "[]")
+    const patientsData = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
+    const carePlansData = JSON.parse(safeLocalStorage.getItem("carePlans") || "[]")
     setPatients(patientsData)
     setCarePlans(carePlansData)
   }, [])
@@ -92,7 +92,7 @@ export default function FunctionalCarePlansPage() {
 
     const updatedCarePlans = [...carePlans, newCarePlan]
     setCarePlans(updatedCarePlans)
-    localStorage.setItem("carePlans", JSON.stringify(updatedCarePlans))
+    safeLocalStorage.setItem("carePlans", JSON.stringify(updatedCarePlans))
     setActiveCarePlan(newCarePlan)
 
     alert(`Care plan "${template.name}" created successfully for ${selectedPatient.name}!`)
@@ -118,7 +118,7 @@ export default function FunctionalCarePlansPage() {
     })
 
     setCarePlans(updatedCarePlans)
-    localStorage.setItem("carePlans", JSON.stringify(updatedCarePlans))
+    safeLocalStorage.setItem("carePlans", JSON.stringify(updatedCarePlans))
 
     if (activeCarePlan?.id === carePlanId) {
       const updatedActivePlan = updatedCarePlans.find((plan) => plan.id === carePlanId)
@@ -142,8 +142,8 @@ export default function FunctionalCarePlansPage() {
       alerts: generateVitalAlerts(vitals),
     }
 
-    const existingVitals = JSON.parse(localStorage.getItem("patientVitals") || "[]")
-    localStorage.setItem("patientVitals", JSON.stringify([...existingVitals, vitalRecord]))
+    const existingVitals = JSON.parse(safeLocalStorage.getItem("patientVitals") || "[]")
+    safeLocalStorage.setItem("patientVitals", JSON.stringify([...existingVitals, vitalRecord]))
 
     // Reset form
     setVitals({
@@ -455,7 +455,7 @@ export default function FunctionalCarePlansPage() {
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
-                {JSON.parse(localStorage.getItem("patientVitals") || "[]")
+                {JSON.parse(safeLocalStorage.getItem("patientVitals") || "[]")
                   .filter((vital: any) => vital.patientId === selectedPatient.id)
                   .slice(-5)
                   .reverse()

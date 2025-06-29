@@ -32,7 +32,7 @@ export default function PrescriptionsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -46,7 +46,7 @@ export default function PrescriptionsPage() {
       return
     }
 
-    const prescriptionsData = JSON.parse(localStorage.getItem("prescriptions") || "[]")
+    const prescriptionsData = JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]")
     // For doctors, show prescriptions they've prescribed
     const filteredPrescriptions = user.role === "Doctor" 
       ? prescriptionsData.filter((prescription: any) => prescription.doctorId === user.id)
@@ -80,7 +80,7 @@ export default function PrescriptionsPage() {
       return prescription
     })
     setPrescriptions(updatedPrescriptions)
-    localStorage.setItem("prescriptions", JSON.stringify(updatedPrescriptions))
+    safeLocalStorage.setItem("prescriptions", JSON.stringify(updatedPrescriptions))
   }
 
   if (!currentUser) {

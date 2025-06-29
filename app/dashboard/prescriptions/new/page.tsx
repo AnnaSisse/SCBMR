@@ -38,7 +38,7 @@ export default function NewPrescriptionPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -56,7 +56,7 @@ export default function NewPrescriptionPage() {
   }, [router])
 
   const loadPatientsAndMedications = () => {
-    const storedPatients = JSON.parse(localStorage.getItem("patients") || "[]")
+    const storedPatients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     setPatients(storedPatients)
 
     // Common medications database
@@ -100,7 +100,7 @@ export default function NewPrescriptionPage() {
     setError("")
 
     try {
-      const prescriptions = JSON.parse(localStorage.getItem("prescriptions") || "[]")
+      const prescriptions = JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]")
       const selectedPatient = patients.find((p) => p.id === formData.patientId)
 
       if (!selectedPatient) {
@@ -129,7 +129,7 @@ export default function NewPrescriptionPage() {
       }
 
       prescriptions.push(newPrescription)
-      localStorage.setItem("prescriptions", JSON.stringify(prescriptions))
+      safeLocalStorage.setItem("prescriptions", JSON.stringify(prescriptions))
 
       router.push("/dashboard/prescriptions")
     } catch (err) {

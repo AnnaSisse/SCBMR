@@ -18,9 +18,9 @@ export default function QualityAssurancePage() {
 
   useEffect(() => {
     // Load lab data
-    const ordersData = JSON.parse(localStorage.getItem("labOrders") || "[]")
-    const specimensData = JSON.parse(localStorage.getItem("specimens") || "[]")
-    const qcData = JSON.parse(localStorage.getItem("qualityControls") || "[]")
+    const ordersData = JSON.parse(safeLocalStorage.getItem("labOrders") || "[]")
+    const specimensData = JSON.parse(safeLocalStorage.getItem("specimens") || "[]")
+    const qcData = JSON.parse(safeLocalStorage.getItem("qualityControls") || "[]")
 
     setLabOrders(ordersData)
     setSpecimens(specimensData)
@@ -107,8 +107,8 @@ export default function QualityAssurancePage() {
       verified: false,
     }
 
-    const existingResults = JSON.parse(localStorage.getItem("labResults") || "[]")
-    localStorage.setItem("labResults", JSON.stringify([...existingResults, resultEntry]))
+    const existingResults = JSON.parse(safeLocalStorage.getItem("labResults") || "[]")
+    safeLocalStorage.setItem("labResults", JSON.stringify([...existingResults, resultEntry]))
 
     if (isAbnormal) {
       alert("Abnormal result flagged for immediate physician review!")

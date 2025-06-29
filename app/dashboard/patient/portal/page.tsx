@@ -32,13 +32,13 @@ export default function PatientPortalPage() {
   const [feedback, setFeedback] = useState({ rating: 0, comment: "" })
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (userData) {
       setCurrentUser(JSON.parse(userData))
     }
 
     // Load patient messages
-    const messagesData = JSON.parse(localStorage.getItem("patientMessages") || "[]")
+    const messagesData = JSON.parse(safeLocalStorage.getItem("patientMessages") || "[]")
     setMessages(messagesData)
   }, [])
 
@@ -56,7 +56,7 @@ export default function PatientPortalPage() {
 
     const updatedMessages = [...messages, message]
     setMessages(updatedMessages)
-    localStorage.setItem("patientMessages", JSON.stringify(updatedMessages))
+    safeLocalStorage.setItem("patientMessages", JSON.stringify(updatedMessages))
     setNewMessage("")
 
     // Simulate doctor response after 2 seconds
@@ -73,7 +73,7 @@ export default function PatientPortalPage() {
 
       const newMessages = [...updatedMessages, response]
       setMessages(newMessages)
-      localStorage.setItem("patientMessages", JSON.stringify(newMessages))
+      safeLocalStorage.setItem("patientMessages", JSON.stringify(newMessages))
     }, 2000)
   }
 
@@ -91,8 +91,8 @@ export default function PatientPortalPage() {
       timestamp: new Date().toISOString(),
     }
 
-    const existingFeedback = JSON.parse(localStorage.getItem("patientFeedback") || "[]")
-    localStorage.setItem("patientFeedback", JSON.stringify([...existingFeedback, feedbackData]))
+    const existingFeedback = JSON.parse(safeLocalStorage.getItem("patientFeedback") || "[]")
+    safeLocalStorage.setItem("patientFeedback", JSON.stringify([...existingFeedback, feedbackData]))
 
     setFeedback({ rating: 0, comment: "" })
     alert("Thank you for your feedback!")

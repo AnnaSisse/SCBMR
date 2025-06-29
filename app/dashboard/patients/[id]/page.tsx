@@ -54,7 +54,7 @@ export default function PatientDetailPage() {
 
   useEffect(() => {
     // Get current user from localStorage
-    const userData = localStorage.getItem("currentUser");
+    const userData = safeLocalStorage.getItem("currentUser");
     if (userData) {
       setCurrentUser(JSON.parse(userData));
     }

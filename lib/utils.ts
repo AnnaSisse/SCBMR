@@ -26,3 +26,70 @@ export function decryptAES256(encrypted: string): string {
   decrypted += decipher.final('utf8');
   return decrypted;
 }
+
+// Safe localStorage utility for SSR compatibility
+export const safeLocalStorage = {
+  getItem: (key: string): string | null => {
+    if (typeof window === 'undefined') {
+      return null
+    }
+    try {
+      return localStorage.getItem(key)
+    } catch (error) {
+      console.error('localStorage getItem error:', error)
+      return null
+    }
+  },
+  
+  setItem: (key: string, value: string): void => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      localStorage.setItem(key, value)
+    } catch (error) {
+      console.error('localStorage setItem error:', error)
+    }
+  },
+  
+  removeItem: (key: string): void => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      localStorage.removeItem(key)
+    } catch (error) {
+      console.error('localStorage removeItem error:', error)
+    }
+  },
+  
+  clear: (): void => {
+    if (typeof window === 'undefined') {
+      return
+    }
+    try {
+      localStorage.clear()
+    } catch (error) {
+      console.error('localStorage clear error:', error)
+    }
+  }
+}
+
+// Hook for safely using localStorage in components
+export const useLocalStorage = () => {
+  const getItem = (key: string, defaultValue: any = null) => {
+    const item = safeLocalStorage.getItem(key)
+    if (item === null) return defaultValue
+    try {
+      return JSON.parse(item)
+    } catch {
+      return item
+    }
+  }
+  
+  const setItem = (key: string, value: any) => {
+    safeLocalStorage.setItem(key, JSON.stringify(value))
+  }
+  
+  return { getItem, setItem, removeItem: safeLocalStorage.removeItem, clear: safeLocalStorage.clear }
+}

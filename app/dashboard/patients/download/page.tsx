@@ -27,7 +27,7 @@ export default function PatientDownloadPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -37,7 +37,7 @@ export default function PatientDownloadPage() {
     setUser(currentUser)
 
     // Load patients
-    const patientsData = JSON.parse(localStorage.getItem("patients") || "[]")
+    const patientsData = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     setPatients(patientsData)
   }, [router])
 
@@ -70,8 +70,8 @@ export default function PatientDownloadPage() {
       const selectedPatientData = patients.filter((p) => selectedPatients.includes(p.id))
 
       // Get additional data if requested
-      const appointments = includeFields.appointments ? JSON.parse(localStorage.getItem("appointments") || "[]") : []
-      const prescriptions = includeFields.prescriptions ? JSON.parse(localStorage.getItem("prescriptions") || "[]") : []
+      const appointments = includeFields.appointments ? JSON.parse(safeLocalStorage.getItem("appointments") || "[]") : []
+      const prescriptions = includeFields.prescriptions ? JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]") : []
 
       // Prepare download data
       const downloadData = selectedPatientData.map((patient) => {

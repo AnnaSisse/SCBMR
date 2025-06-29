@@ -32,7 +32,7 @@ export default function NewDeathCertificatePage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -50,7 +50,7 @@ export default function NewDeathCertificatePage() {
   }, [router])
 
   const loadPatients = () => {
-    const storedPatients = JSON.parse(localStorage.getItem("patients") || "[]")
+    const storedPatients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     setPatients(storedPatients)
   }
 
@@ -60,7 +60,7 @@ export default function NewDeathCertificatePage() {
     setError("")
 
     try {
-      const certificates = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
+      const certificates = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
       const selectedPatient = patients.find((p) => p.id === formData.patientId)
 
       if (!selectedPatient) {
@@ -88,11 +88,11 @@ export default function NewDeathCertificatePage() {
       }
 
       certificates.push(newCertificate)
-      localStorage.setItem("deathCertificates", JSON.stringify(certificates))
+      safeLocalStorage.setItem("deathCertificates", JSON.stringify(certificates))
 
       // Update patient status to deceased
       const updatedPatients = patients.map((p) => (p.id === formData.patientId ? { ...p, status: "Deceased" } : p))
-      localStorage.setItem("patients", JSON.stringify(updatedPatients))
+      safeLocalStorage.setItem("patients", JSON.stringify(updatedPatients))
 
       router.push("/dashboard/death-certificates")
     } catch (err) {

@@ -18,7 +18,7 @@ export default function DeathCertificatesPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -51,7 +51,7 @@ export default function DeathCertificatesPage() {
   }, [searchTerm, deathCertificates])
 
   const loadDeathCertificates = () => {
-    const storedCertificates = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
+    const storedCertificates = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
     setDeathCertificates(storedCertificates)
     setFilteredCertificates(storedCertificates)
   }

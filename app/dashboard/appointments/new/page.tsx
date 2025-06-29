@@ -35,8 +35,8 @@ export default function NewAppointmentPage() {
   }, [])
 
   const loadPatientsAndDoctors = () => {
-    const storedPatients = JSON.parse(localStorage.getItem("patients") || "[]")
-    const storedUsers = JSON.parse(localStorage.getItem("users") || "[]")
+    const storedPatients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
+    const storedUsers = JSON.parse(safeLocalStorage.getItem("users") || "[]")
     const doctorUsers = storedUsers.filter((user: any) => user.role === "Doctor")
 
     setPatients(storedPatients)
@@ -49,7 +49,7 @@ export default function NewAppointmentPage() {
     setError("")
 
     try {
-      const appointments = JSON.parse(localStorage.getItem("appointments") || "[]")
+      const appointments = JSON.parse(safeLocalStorage.getItem("appointments") || "[]")
 
       const selectedPatient = patients.find((p) => p.id === formData.patientId)
       const selectedDoctor = doctors.find((d) => d.id === formData.doctorId)
@@ -63,7 +63,7 @@ export default function NewAppointmentPage() {
       }
 
       appointments.push(newAppointment)
-      localStorage.setItem("appointments", JSON.stringify(appointments))
+      safeLocalStorage.setItem("appointments", JSON.stringify(appointments))
 
       router.push("/dashboard/appointments")
     } catch (err) {

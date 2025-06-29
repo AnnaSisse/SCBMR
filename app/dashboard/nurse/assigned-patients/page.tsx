@@ -18,7 +18,7 @@ export default function AssignedPatientsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -52,7 +52,7 @@ export default function AssignedPatientsPage() {
   const loadAssignedPatients = () => {
     // In a real application, this would fetch from an API
     // For now, we'll use localStorage
-    const storedPatients = JSON.parse(localStorage.getItem("patients") || "[]")
+    const storedPatients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     // Filter patients assigned to this nurse
     const assignedPatients = storedPatients.filter((patient: any) => 
       patient.assignedNurse === user?.id || patient.assignedNurse === user?.name

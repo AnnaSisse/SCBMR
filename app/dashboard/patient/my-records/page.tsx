@@ -36,7 +36,7 @@ export default function MyRecordsPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -51,16 +51,16 @@ export default function MyRecordsPage() {
     }
 
     try {
-      const recordsData = JSON.parse(localStorage.getItem("patientRecords") || "[]")
-      const prescriptionsData = JSON.parse(localStorage.getItem("prescriptions") || "[]")
+      const recordsData = JSON.parse(safeLocalStorage.getItem("patientRecords") || "[]")
+      const prescriptionsData = JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]")
       
       if (user.role === "Doctor") {
         // For doctors, show records of their appointed patients
-        const doctorAppointments = JSON.parse(localStorage.getItem("appointments") || "[]")
+        const doctorAppointments = JSON.parse(safeLocalStorage.getItem("appointments") || "[]")
           .filter((appointment: any) => appointment.doctorId === user.id)
         
         const patientIds = [...new Set(doctorAppointments.map((app: any) => app.patientId))]
-        const patients = JSON.parse(localStorage.getItem("patients") || "[]")
+        const patients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
           .filter((patient: any) => patientIds.includes(patient.id))
         
         setAppointedPatients(patients)

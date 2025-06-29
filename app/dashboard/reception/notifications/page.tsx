@@ -65,7 +65,7 @@ export default function ReceptionNotificationsPage() {
   ])
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return

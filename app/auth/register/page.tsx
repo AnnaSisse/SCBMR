@@ -51,7 +51,7 @@ export default function RegisterPage() {
 
       if (response.ok) {
         // Auto login
-        localStorage.setItem("currentUser", JSON.stringify(data.user))
+        safeLocalStorage.setItem("currentUser", JSON.stringify(data.user))
         router.push("/dashboard")
       } else {
         setError((data.message || "Registration failed. Please try again.") + (data.error ? `\n[Debug: ${data.error}]` : ""))

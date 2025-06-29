@@ -43,7 +43,7 @@ export default function DoctorCivilAuthorityPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -60,11 +60,11 @@ export default function DoctorCivilAuthorityPage() {
     setDeathCertForm((prev) => ({ ...prev, certifierName: user.name, certifierTitle: "Doctor" }))
     setBirthCertForm((prev) => ({ ...prev, attendingPhysician: user.name }))
 
-    const patientsData = JSON.parse(localStorage.getItem("patients") || "[]")
+    const patientsData = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     setPatients(patientsData)
 
-    const deathCerts = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
-    const birthCerts = JSON.parse(localStorage.getItem("birthCertificates") || "[]")
+    const deathCerts = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
+    const birthCerts = JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]")
     setSubmittedCertificates([...deathCerts, ...birthCerts])
   }, [router])
 
@@ -74,7 +74,7 @@ export default function DoctorCivilAuthorityPage() {
       return
     }
 
-    const deathCerts = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
+    const deathCerts = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
     const newCert = {
       id: `DC${Date.now()}`,
       ...deathCertForm,
@@ -83,7 +83,7 @@ export default function DoctorCivilAuthorityPage() {
       submittedAt: new Date().toISOString(),
     }
     deathCerts.push(newCert)
-    localStorage.setItem("deathCertificates", JSON.stringify(deathCerts))
+    safeLocalStorage.setItem("deathCertificates", JSON.stringify(deathCerts))
     setSubmittedCertificates((prev) => [...prev, newCert])
     setDeathCertForm({
       patientName: "",
@@ -104,7 +104,7 @@ export default function DoctorCivilAuthorityPage() {
       return
     }
 
-    const birthCerts = JSON.parse(localStorage.getItem("birthCertificates") || "[]")
+    const birthCerts = JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]")
     const newCert = {
       id: `BC${Date.now()}`,
       ...birthCertForm,
@@ -113,7 +113,7 @@ export default function DoctorCivilAuthorityPage() {
       submittedAt: new Date().toISOString(),
     }
     birthCerts.push(newCert)
-    localStorage.setItem("birthCertificates", JSON.stringify(birthCerts))
+    safeLocalStorage.setItem("birthCertificates", JSON.stringify(birthCerts))
     setSubmittedCertificates((prev) => [...prev, newCert])
     setBirthCertForm({
       childName: "",

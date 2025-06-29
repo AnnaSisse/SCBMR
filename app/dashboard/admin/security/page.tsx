@@ -68,7 +68,7 @@ export default function AdminSecurityPage() {
   }
 
   const loadSecurityData = () => {
-    const settings = localStorage.getItem("securitySettings")
+    const settings = safeLocalStorage.getItem("securitySettings")
     if (settings) {
       setSecuritySettings(JSON.parse(settings))
     }
@@ -161,7 +161,7 @@ export default function AdminSecurityPage() {
   const updateSecuritySetting = (setting: string, value: boolean) => {
     const updatedSettings = { ...securitySettings, [setting]: value }
     setSecuritySettings(updatedSettings)
-    localStorage.setItem("securitySettings", JSON.stringify(updatedSettings))
+    safeLocalStorage.setItem("securitySettings", JSON.stringify(updatedSettings))
   }
 
   const getSeverityColor = (severity: string) => {

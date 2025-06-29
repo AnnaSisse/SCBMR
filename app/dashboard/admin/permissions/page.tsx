@@ -16,7 +16,7 @@ export default function PermissionsPage() {
   const [permissions, setPermissions] = useState<any>({})
 
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("users") || "[]")
+    const userData = JSON.parse(safeLocalStorage.getItem("users") || "[]")
     setUsers(userData)
   }, [])
 
@@ -69,7 +69,7 @@ export default function PermissionsPage() {
   }
 
   const savePermissions = () => {
-    localStorage.setItem("userPermissions", JSON.stringify(permissions))
+    safeLocalStorage.setItem("userPermissions", JSON.stringify(permissions))
     alert("Permissions saved successfully!")
   }
 

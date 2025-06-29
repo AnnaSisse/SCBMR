@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
+import { safeLocalStorage } from "@/lib/utils"
 import {
   Stethoscope,
   Users,
@@ -44,12 +45,18 @@ export default function HomePage() {
   })
   const [healthStatus, setHealthStatus] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(true)
+  const [isClient, setIsClient] = useState(false)
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    setIsClient(true)
+    const userData = safeLocalStorage.getItem("currentUser")
     if (userData) {
-      setUser(JSON.parse(userData))
+      try {
+        setUser(JSON.parse(userData))
+      } catch (error) {
+        console.error('Error parsing user data:', error)
+      }
     }
     loadStats()
     checkHealth()
@@ -70,9 +77,9 @@ export default function HomePage() {
 
   const loadStats = () => {
     try {
-      const patients = JSON.parse(localStorage.getItem("patients") || "[]")
-      const users = JSON.parse(localStorage.getItem("users") || "[]")
-      const appointments = JSON.parse(localStorage.getItem("appointments") || "[]")
+      const patients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
+      const users = JSON.parse(safeLocalStorage.getItem("users") || "[]")
+      const appointments = JSON.parse(safeLocalStorage.getItem("appointments") || "[]")
 
       setStats({
         totalPatients: patients.length,

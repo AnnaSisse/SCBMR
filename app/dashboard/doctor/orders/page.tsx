@@ -24,8 +24,8 @@ export default function OrdersPage() {
   })
 
   useEffect(() => {
-    const patientsData = JSON.parse(localStorage.getItem("patients") || "[]")
-    const ordersData = JSON.parse(localStorage.getItem("medicalOrders") || "[]")
+    const patientsData = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
+    const ordersData = JSON.parse(safeLocalStorage.getItem("medicalOrders") || "[]")
     setPatients(patientsData)
     setOrders(ordersData)
   }, [])
@@ -119,7 +119,7 @@ export default function OrdersPage() {
 
     const updatedOrders = [...orders, order]
     setOrders(updatedOrders)
-    localStorage.setItem("medicalOrders", JSON.stringify(updatedOrders))
+    safeLocalStorage.setItem("medicalOrders", JSON.stringify(updatedOrders))
 
     // Reset form
     setNewOrder({

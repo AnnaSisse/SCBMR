@@ -20,7 +20,7 @@ export default function TelemedicineRoomPage() {
   const params = useParams()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -32,7 +32,7 @@ export default function TelemedicineRoomPage() {
   }, [])
 
   const loadConsultation = () => {
-    const consultations = JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]")
+    const consultations = JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]")
     const currentConsultation = consultations.find((c: any) => c.id === params.id)
     if (currentConsultation) {
       setConsultation(currentConsultation)
@@ -66,7 +66,7 @@ export default function TelemedicineRoomPage() {
   const handleCompleteConsultation = () => {
     if (!consultation) return
 
-    const consultations = JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]")
+    const consultations = JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]")
     const updatedConsultations = consultations.map((c: any) =>
       c.id === consultation.id
         ? {
@@ -79,19 +79,19 @@ export default function TelemedicineRoomPage() {
         : c,
     )
 
-    localStorage.setItem("telemedicineConsultations", JSON.stringify(updatedConsultations))
+    safeLocalStorage.setItem("telemedicineConsultations", JSON.stringify(updatedConsultations))
     router.push("/dashboard/telemedicine")
   }
 
   const handleSaveNotes = () => {
     if (!consultation) return
 
-    const consultations = JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]")
+    const consultations = JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]")
     const updatedConsultations = consultations.map((c: any) =>
       c.id === consultation.id ? { ...c, consultationNotes } : c,
     )
 
-    localStorage.setItem("telemedicineConsultations", JSON.stringify(updatedConsultations))
+    safeLocalStorage.setItem("telemedicineConsultations", JSON.stringify(updatedConsultations))
   }
 
   if (!consultation || !user) {

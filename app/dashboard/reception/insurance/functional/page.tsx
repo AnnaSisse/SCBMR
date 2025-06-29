@@ -33,14 +33,14 @@ export default function FunctionalInsurancePage() {
   const [preAuthRequests, setPreAuthRequests] = useState<any[]>([])
 
   useEffect(() => {
-    const patientsData = JSON.parse(localStorage.getItem("patients") || "[]")
+    const patientsData = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
     setPatients(patientsData)
     loadBillingData()
     loadPreAuthData()
   }, [])
 
   const loadBillingData = () => {
-    const billing = JSON.parse(localStorage.getItem("billingRecords") || "[]")
+    const billing = JSON.parse(safeLocalStorage.getItem("billingRecords") || "[]")
     if (billing.length === 0) {
       // Generate sample billing data with FCFA
       const sampleBilling = [
@@ -90,7 +90,7 @@ export default function FunctionalInsurancePage() {
           patientAddress: "Bamenda, Cameroon",
         },
       ]
-      localStorage.setItem("billingRecords", JSON.stringify(sampleBilling))
+      safeLocalStorage.setItem("billingRecords", JSON.stringify(sampleBilling))
       setBillingRecords(sampleBilling)
     } else {
       setBillingRecords(billing)
@@ -98,7 +98,7 @@ export default function FunctionalInsurancePage() {
   }
 
   const loadPreAuthData = () => {
-    const preAuth = JSON.parse(localStorage.getItem("preAuthRequests") || "[]")
+    const preAuth = JSON.parse(safeLocalStorage.getItem("preAuthRequests") || "[]")
     if (preAuth.length === 0) {
       // Generate sample pre-auth data with FCFA
       const samplePreAuth = [
@@ -124,7 +124,7 @@ export default function FunctionalInsurancePage() {
           approvalNumber: "AUTH12345",
         },
       ]
-      localStorage.setItem("preAuthRequests", JSON.stringify(samplePreAuth))
+      safeLocalStorage.setItem("preAuthRequests", JSON.stringify(samplePreAuth))
       setPreAuthRequests(samplePreAuth)
     } else {
       setPreAuthRequests(preAuth)
@@ -167,14 +167,14 @@ export default function FunctionalInsurancePage() {
       setIsVerifying(false)
 
       // Save verification result
-      const verifications = JSON.parse(localStorage.getItem("insuranceVerifications") || "[]")
+      const verifications = JSON.parse(safeLocalStorage.getItem("insuranceVerifications") || "[]")
       const newVerification = {
         id: `VER${Date.now()}`,
         patientId: selectedPatient.id,
         patientName: selectedPatient.name,
         ...mockResult,
       }
-      localStorage.setItem("insuranceVerifications", JSON.stringify([...verifications, newVerification]))
+      safeLocalStorage.setItem("insuranceVerifications", JSON.stringify([...verifications, newVerification]))
     }, 2000)
   }
 
@@ -190,7 +190,7 @@ export default function FunctionalInsurancePage() {
 
     const updatedRequests = [...preAuthRequests, newRequest]
     setPreAuthRequests(updatedRequests)
-    localStorage.setItem("preAuthRequests", JSON.stringify(updatedRequests))
+    safeLocalStorage.setItem("preAuthRequests", JSON.stringify(updatedRequests))
 
     alert("Pre-authorization request submitted successfully!")
   }
@@ -213,7 +213,7 @@ export default function FunctionalInsurancePage() {
     })
 
     setBillingRecords(updatedBilling)
-    localStorage.setItem("billingRecords", JSON.stringify(updatedBilling))
+    safeLocalStorage.setItem("billingRecords", JSON.stringify(updatedBilling))
     alert(`Payment of ${amount.toLocaleString()} FCFA processed successfully!`)
   }
 

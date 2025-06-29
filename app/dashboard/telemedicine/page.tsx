@@ -15,7 +15,7 @@ export default function TelemedicinePage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -26,7 +26,7 @@ export default function TelemedicinePage() {
   }, [router])
 
   const loadConsultations = () => {
-    const storedConsultations = JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]")
+    const storedConsultations = JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]")
     setConsultations(storedConsultations)
   }
 
@@ -51,7 +51,7 @@ export default function TelemedicinePage() {
       consultation.id === consultationId ? { ...consultation, status: "In Progress" } : consultation,
     )
     setConsultations(updatedConsultations)
-    localStorage.setItem("telemedicineConsultations", JSON.stringify(updatedConsultations))
+    safeLocalStorage.setItem("telemedicineConsultations", JSON.stringify(updatedConsultations))
 
     // Navigate to consultation room
     router.push(`/dashboard/telemedicine/room/${consultationId}`)

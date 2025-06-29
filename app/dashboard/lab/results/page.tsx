@@ -74,9 +74,9 @@ export default function LabResultsPage() {
   }
 
   const loadLabData = () => {
-    const orders = JSON.parse(localStorage.getItem("labOrders") || "[]")
-    const results = JSON.parse(localStorage.getItem("labResults") || "[]")
-    const specs = JSON.parse(localStorage.getItem("specimens") || "[]")
+    const orders = JSON.parse(safeLocalStorage.getItem("labOrders") || "[]")
+    const results = JSON.parse(safeLocalStorage.getItem("labResults") || "[]")
+    const specs = JSON.parse(safeLocalStorage.getItem("specimens") || "[]")
 
     setLabOrders(orders)
     setLabResults(results)
@@ -84,13 +84,13 @@ export default function LabResultsPage() {
   }
 
   const loadAuditTrail = () => {
-    const trail = JSON.parse(localStorage.getItem("labAuditTrail") || "[]")
+    const trail = JSON.parse(safeLocalStorage.getItem("labAuditTrail") || "[]")
     setAuditTrail(trail)
   }
 
   const generateSampleData = () => {
     // Generate sample lab orders if none exist
-    const existingOrders = JSON.parse(localStorage.getItem("labOrders") || "[]")
+    const existingOrders = JSON.parse(safeLocalStorage.getItem("labOrders") || "[]")
     if (existingOrders.length === 0) {
       const sampleOrders = [
         {
@@ -138,12 +138,12 @@ export default function LabResultsPage() {
           specimenType: "Urine",
         },
       ]
-      localStorage.setItem("labOrders", JSON.stringify(sampleOrders))
+      safeLocalStorage.setItem("labOrders", JSON.stringify(sampleOrders))
       setLabOrders(sampleOrders)
     }
 
     // Generate sample specimens
-    const existingSpecimens = JSON.parse(localStorage.getItem("specimens") || "[]")
+    const existingSpecimens = JSON.parse(safeLocalStorage.getItem("specimens") || "[]")
     if (existingSpecimens.length === 0) {
       const sampleSpecimens = [
         {
@@ -180,7 +180,7 @@ export default function LabResultsPage() {
           location: "Receiving",
         },
       ]
-      localStorage.setItem("specimens", JSON.stringify(sampleSpecimens))
+      safeLocalStorage.setItem("specimens", JSON.stringify(sampleSpecimens))
       setSpecimens(sampleSpecimens)
     }
   }
@@ -254,7 +254,7 @@ export default function LabResultsPage() {
 
     const updatedResults = [...labResults, resultEntry]
     setLabResults(updatedResults)
-    localStorage.setItem("labResults", JSON.stringify(updatedResults))
+    safeLocalStorage.setItem("labResults", JSON.stringify(updatedResults))
     logAuditEvent("Result Entered", { resultId: resultEntry.id, orderId: selectedOrder.id })
 
     // Update order status
@@ -262,7 +262,7 @@ export default function LabResultsPage() {
       order.id === selectedOrder.id ? { ...order, status: "completed", completedAt: new Date().toISOString() } : order,
     )
     setLabOrders(updatedOrders)
-    localStorage.setItem("labOrders", JSON.stringify(updatedOrders))
+    safeLocalStorage.setItem("labOrders", JSON.stringify(updatedOrders))
     logAuditEvent("Order Status Updated", { orderId: selectedOrder.id, newStatus: "completed" })
 
     // Reset form
@@ -281,7 +281,7 @@ export default function LabResultsPage() {
   }
 
   const verifyResult = (resultId: string) => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}")
+    const currentUser = JSON.parse(safeLocalStorage.getItem("currentUser") || "{}")
     const updatedResults = labResults.map((result) => {
       if (result.id === resultId) {
         const newHistory = [
@@ -298,7 +298,7 @@ export default function LabResultsPage() {
     })
 
     setLabResults(updatedResults)
-    localStorage.setItem("labResults", JSON.stringify(updatedResults))
+    safeLocalStorage.setItem("labResults", JSON.stringify(updatedResults))
     logAuditEvent("Result Verified", { resultId })
     alert("Result has been verified.")
   }
@@ -308,7 +308,7 @@ export default function LabResultsPage() {
       spec.id === specimenId ? { ...spec, status: newStatus, updatedAt: new Date().toISOString() } : spec,
     )
     setSpecimens(updatedSpecimens)
-    localStorage.setItem("specimens", JSON.stringify(updatedSpecimens))
+    safeLocalStorage.setItem("specimens", JSON.stringify(updatedSpecimens))
     logAuditEvent("Specimen Status Updated", { specimenId, newStatus })
   }
 
@@ -333,8 +333,8 @@ export default function LabResultsPage() {
     }
 
     // Save report
-    const existingReports = JSON.parse(localStorage.getItem("labReports") || "[]")
-    localStorage.setItem("labReports", JSON.stringify([...existingReports, report]))
+    const existingReports = JSON.parse(safeLocalStorage.getItem("labReports") || "[]")
+    safeLocalStorage.setItem("labReports", JSON.stringify([...existingReports, report]))
 
     // Download report as JSON (simulated)
     const blob = new Blob([JSON.stringify(report, null, 2)], { type: "application/json" })
@@ -379,16 +379,16 @@ export default function LabResultsPage() {
   }
 
   const logAuditEvent = (action: string, details: object) => {
-    const currentUser = JSON.parse(localStorage.getItem("currentUser") || "{}")
+    const currentUser = JSON.parse(safeLocalStorage.getItem("currentUser") || "{}")
     const event = {
       action,
       details,
       user: currentUser.name || "System",
       timestamp: new Date().toISOString(),
     }
-    const currentTrail = JSON.parse(localStorage.getItem("labAuditTrail") || "[]")
+    const currentTrail = JSON.parse(safeLocalStorage.getItem("labAuditTrail") || "[]")
     const newTrail = [event, ...currentTrail]
-    localStorage.setItem("labAuditTrail", JSON.stringify(newTrail))
+    safeLocalStorage.setItem("labAuditTrail", JSON.stringify(newTrail))
   }
 
   return (

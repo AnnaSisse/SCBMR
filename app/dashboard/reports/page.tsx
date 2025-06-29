@@ -152,7 +152,7 @@ export default function ReportsPage() {
   ]
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -214,10 +214,10 @@ export default function ReportsPage() {
   }
 
   const generateMockReportData = async (reportId: string) => {
-    const patients = JSON.parse(localStorage.getItem("patients") || "[]")
-    const appointments = JSON.parse(localStorage.getItem("appointments") || "[]")
-    const prescriptions = JSON.parse(localStorage.getItem("prescriptions") || "[]")
-    const consultations = JSON.parse(localStorage.getItem("telemedicineConsultations") || "[]")
+    const patients = JSON.parse(safeLocalStorage.getItem("patients") || "[]")
+    const appointments = JSON.parse(safeLocalStorage.getItem("appointments") || "[]")
+    const prescriptions = JSON.parse(safeLocalStorage.getItem("prescriptions") || "[]")
+    const consultations = JSON.parse(safeLocalStorage.getItem("telemedicineConsultations") || "[]")
 
     switch (reportId) {
       case "patient-demographics":

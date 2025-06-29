@@ -12,8 +12,8 @@ export default function LabAnalyticsPage() {
 
   useEffect(() => {
     // Fetch data from localStorage and compute analytics
-    const labOrders = JSON.parse(localStorage.getItem("labOrders") || "[]")
-    const labResults = JSON.parse(localStorage.getItem("labResults") || "[]")
+    const labOrders = JSON.parse(safeLocalStorage.getItem("labOrders") || "[]")
+    const labResults = JSON.parse(safeLocalStorage.getItem("labResults") || "[]")
     generateAnalytics(labOrders, labResults)
   }, [])
 

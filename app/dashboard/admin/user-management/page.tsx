@@ -36,7 +36,7 @@ export default function UserManagementPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -55,7 +55,7 @@ export default function UserManagementPage() {
 
   const loadUsers = () => {
     try {
-      const usersData = JSON.parse(localStorage.getItem("users") || "[]")
+      const usersData = JSON.parse(safeLocalStorage.getItem("users") || "[]")
       setUsers(usersData)
     } catch (error) {
       console.error("Error loading users:", error)
@@ -90,7 +90,7 @@ export default function UserManagementPage() {
       return user
     })
 
-    localStorage.setItem("users", JSON.stringify(updatedUsers))
+    safeLocalStorage.setItem("users", JSON.stringify(updatedUsers))
     setUsers(updatedUsers)
     toast.success("User role updated successfully")
   }
@@ -108,7 +108,7 @@ export default function UserManagementPage() {
       return user
     })
 
-    localStorage.setItem("users", JSON.stringify(updatedUsers))
+    safeLocalStorage.setItem("users", JSON.stringify(updatedUsers))
     setUsers(updatedUsers)
     toast.success(`User ${newStatus === "active" ? "activated" : "deactivated"} successfully`)
   }
@@ -116,7 +116,7 @@ export default function UserManagementPage() {
   const deleteUser = (userId: string) => {
     if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
       const updatedUsers = users.filter((user: any) => user.id !== userId)
-      localStorage.setItem("users", JSON.stringify(updatedUsers))
+      safeLocalStorage.setItem("users", JSON.stringify(updatedUsers))
       setUsers(updatedUsers)
       toast.success("User deleted successfully")
     }

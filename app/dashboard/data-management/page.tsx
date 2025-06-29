@@ -15,7 +15,7 @@ export default function DataManagementPage() {
   const router = useRouter()
 
   useEffect(() => {
-    const userData = localStorage.getItem("currentUser")
+    const userData = safeLocalStorage.getItem("currentUser")
     if (!userData) {
       router.push("/auth/login")
       return
@@ -29,8 +29,8 @@ export default function DataManagementPage() {
       return
     }
 
-    const deathCerts = JSON.parse(localStorage.getItem("deathCertificates") || "[]")
-    const birthCerts = JSON.parse(localStorage.getItem("birthCertificates") || "[]")
+    const deathCerts = JSON.parse(safeLocalStorage.getItem("deathCertificates") || "[]")
+    const birthCerts = JSON.parse(safeLocalStorage.getItem("birthCertificates") || "[]")
     setCertificates([...deathCerts, ...birthCerts])
   }, [router])
 
@@ -50,8 +50,8 @@ export default function DataManagementPage() {
     const deathCerts = updatedCerts.filter((cert) => cert.id.startsWith("DC"))
     const birthCerts = updatedCerts.filter((cert) => cert.id.startsWith("BC"))
 
-    localStorage.setItem("deathCertificates", JSON.stringify(deathCerts))
-    localStorage.setItem("birthCertificates", JSON.stringify(birthCerts))
+    safeLocalStorage.setItem("deathCertificates", JSON.stringify(deathCerts))
+    safeLocalStorage.setItem("birthCertificates", JSON.stringify(birthCerts))
     setCertificates(updatedCerts)
   }
 
@@ -71,8 +71,8 @@ export default function DataManagementPage() {
     const deathCerts = updatedCerts.filter((cert) => cert.id.startsWith("DC"))
     const birthCerts = updatedCerts.filter((cert) => cert.id.startsWith("BC"))
 
-    localStorage.setItem("deathCertificates", JSON.stringify(deathCerts))
-    localStorage.setItem("birthCertificates", JSON.stringify(birthCerts))
+    safeLocalStorage.setItem("deathCertificates", JSON.stringify(deathCerts))
+    safeLocalStorage.setItem("birthCertificates", JSON.stringify(birthCerts))
     setCertificates(updatedCerts)
   }
 
