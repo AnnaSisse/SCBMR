@@ -11,6 +11,7 @@
     "db:check": "node scripts/check-connections.js",
     "db:seed": "node scripts/seed-complete-system.js",
     "db:reset": "node scripts/reset-database.js",
+    "export": "next export"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
