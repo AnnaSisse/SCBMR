@@ -10,7 +10,7 @@
     "db:init": "node scripts/init-database.js",
     "db:check": "node scripts/check-connections.js",
     "db:seed": "node scripts/seed-complete-system.js",
-    "db:reset": "node scripts/reset-database.js"
+    "db:reset": "node scripts/reset-database.js",
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.1",
