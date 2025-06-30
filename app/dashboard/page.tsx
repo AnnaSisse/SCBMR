@@ -55,47 +55,6 @@ import {
   UserRound,
   UserSquare,
   UserCircle,
-  UserCircle2,
-  UserCirclePlus,
-  UserCircleMinus,
-  UserCircleCheck,
-  UserCircleX,
-  UserCirclePlus2,
-  UserCircleMinus2,
-  UserCircleCheck2,
-  UserCircleX2,
-  UserCirclePlus3,
-  UserCircleMinus3,
-  UserCircleCheck3,
-  UserCircleX3,
-  UserCirclePlus4,
-  UserCircleMinus4,
-  UserCircleCheck4,
-  UserCircleX4,
-  UserCirclePlus5,
-  UserCircleMinus5,
-  UserCircleCheck5,
-  UserCircleX5,
-  UserCirclePlus6,
-  UserCircleMinus6,
-  UserCircleCheck6,
-  UserCircleX6,
-  UserCirclePlus7,
-  UserCircleMinus7,
-  UserCircleCheck7,
-  UserCircleX7,
-  UserCirclePlus8,
-  UserCircleMinus8,
-  UserCircleCheck8,
-  UserCircleX8,
-  UserCirclePlus9,
-  UserCircleMinus9,
-  UserCircleCheck9,
-  UserCircleX9,
-  UserCirclePlus10,
-  UserCircleMinus10,
-  UserCircleCheck10,
-  UserCircleX10,
   LayoutDashboard,
   History,
   TrendingUp,
@@ -107,18 +66,35 @@ import {
   BookUser,
   Briefcase,
   Boxes,
+  MessageCircle,
+  Camera
 } from "lucide-react"
 import Link from "next/link"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
+interface User {
+  id: number;
+  name: string;
+  role: string;
+  // add other fields as needed
+}
+
+interface DashboardStats {
+  [key: string]: number | string | undefined;
+  totalPatients?: number;
+  totalDoctors?: number;
+  totalAppointments?: number;
+  successRate?: number;
+  // add other fields as needed
+}
+
 export default function DashboardPage() {
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [stats, setStats] = useState({
-    patients: 0,
-    appointments: 0,
-    prescriptions: 0,
-    consultations: 0,
-    certificates: 0,
+  const [currentUser, setCurrentUser] = useState<User | null>(null)
+  const [stats, setStats] = useState<DashboardStats>({
+    totalPatients: 0,
+    totalDoctors: 0,
+    totalAppointments: 0,
+    successRate: 0,
   })
   const router = useRouter()
 
@@ -147,11 +123,10 @@ export default function DashboardPage() {
     ]
 
     setStats({
-      patients: patients.length,
-      appointments: appointments.length,
-      prescriptions: prescriptions.length,
-      consultations: consultations.length,
-      certificates: certificates.length,
+      totalPatients: patients.length,
+      totalDoctors: 0, // Assuming totalDoctors is not available in the current stats
+      totalAppointments: appointments.length,
+      successRate: 100, // Assuming successRate is not available in the current stats
     })
   }
 
@@ -184,21 +159,21 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {currentUser.role === "Admin" && <AdminDashboard stats={stats} />}
-        {currentUser.role === "Doctor" && <DoctorDashboard stats={stats} />}
-        {currentUser.role === "Nurse" && <NurseDashboard stats={stats} />}
-        {currentUser.role === "Lab Technician" && <LabTechDashboard stats={stats} />}
-        {currentUser.role === "Receptionist" && <ReceptionistDashboard stats={stats} />}
-        {currentUser.role === "Civil Authority" && <CivilAuthorityDashboard stats={stats} />}
-        {currentUser.role === "Data Manager" && <DataManagerDashboard stats={stats} />}
-        {currentUser.role === "Patient" && <PatientDashboard user={currentUser} />}
+        {currentUser.role?.toLowerCase() === "admin" && <AdminDashboard stats={stats} />}
+        {currentUser.role?.toLowerCase() === "doctor" && <DoctorDashboard stats={stats} />}
+        {currentUser.role?.toLowerCase() === "nurse" && <NurseDashboard stats={stats} />}
+        {currentUser.role?.toLowerCase() === "lab technician" && <LabTechDashboard stats={stats} />}
+        {currentUser.role?.toLowerCase() === "receptionist" && <ReceptionistDashboard stats={stats} />}
+        {currentUser.role?.toLowerCase() === "civil authority" && <CivilAuthorityDashboard stats={stats} />}
+        {currentUser.role?.toLowerCase() === "data manager" && <DataManagerDashboard stats={stats} />}
+        {currentUser.role?.toLowerCase() === "patient" && <PatientDashboard user={currentUser} />}
       </div>
     </div>
   )
 }
 
-function AdminDashboard({ stats }: { stats: any }) {
-  const { users, appointments, prescriptions, records } = stats
+function AdminDashboard({ stats }: { stats: DashboardStats }) {
+  const { totalPatients, totalDoctors, totalAppointments, successRate } = stats
 
   return (
     <div className="space-y-8">
@@ -215,7 +190,7 @@ function AdminDashboard({ stats }: { stats: any }) {
             <Users className="h-4 w-4 text-blue-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-blue-700">{stats.patients}</div>
+            <div className="text-2xl font-bold text-blue-700">{totalPatients}</div>
           </CardContent>
         </Card>
 
@@ -225,7 +200,7 @@ function AdminDashboard({ stats }: { stats: any }) {
             <Activity className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-700">{stats.certificates}</div>
+            <div className="text-2xl font-bold text-green-700">{totalDoctors}</div>
           </CardContent>
         </Card>
 
@@ -235,7 +210,7 @@ function AdminDashboard({ stats }: { stats: any }) {
             <Calendar className="h-4 w-4 text-purple-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-purple-700">{stats.appointments}</div>
+            <div className="text-2xl font-bold text-purple-700">{totalAppointments}</div>
           </CardContent>
         </Card>
 
@@ -395,12 +370,48 @@ function AdminDashboard({ stats }: { stats: any }) {
             </Link>
           </CardContent>
         </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-teal-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HeartPulse className="h-5 w-5 text-teal-600" />
+              Hospitalisations
+            </CardTitle>
+            <CardDescription>View and manage all hospitalisations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/hospitalisations">
+              <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                <HeartPulse className="h-4 w-4 mr-2" />
+                Manage Hospitalisations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-yellow-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FlaskConical className="h-5 w-5 text-yellow-600" />
+              Examinations
+            </CardTitle>
+            <CardDescription>View and manage all examinations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/examinations">
+              <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
+                <FlaskConical className="h-4 w-4 mr-2" />
+                Manage Examinations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 }
 
-function DoctorDashboard({ stats }: { stats: any }) {
+function DoctorDashboard({ stats }: { stats: DashboardStats }) {
   return (
     <div className="space-y-8">
       <div>
@@ -517,12 +528,48 @@ function DoctorDashboard({ stats }: { stats: any }) {
             </Link>
           </CardContent>
         </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-teal-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HeartPulse className="h-5 w-5 text-teal-600" />
+              Hospitalisations
+            </CardTitle>
+            <CardDescription>View and manage patient hospitalisations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/doctor/hospitalisations">
+              <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                <HeartPulse className="h-4 w-4 mr-2" />
+                Manage Hospitalisations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-yellow-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FlaskConical className="h-5 w-5 text-yellow-600" />
+              Examinations
+            </CardTitle>
+            <CardDescription>View and manage patient examinations</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/examinations">
+              <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
+                <FlaskConical className="h-4 w-4 mr-2" />
+                Manage Examinations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 }
 
-function PatientDashboard({ user }: { user: any }) {
+function PatientDashboard({ user }: { user: User }) {
   return (
     <div className="space-y-8">
       <div>
@@ -621,12 +668,48 @@ function PatientDashboard({ user }: { user: any }) {
             </Link>
           </CardContent>
         </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-teal-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HeartPulse className="h-5 w-5 text-teal-600" />
+              My Hospitalisations
+            </CardTitle>
+            <CardDescription>View your hospital admission history</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/hospitalisations">
+              <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                <HeartPulse className="h-4 w-4 mr-2" />
+                View Hospitalisations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-yellow-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <FlaskConical className="h-5 w-5 text-yellow-600" />
+              My Examinations
+            </CardTitle>
+            <CardDescription>View your examination results</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/examinations/results">
+              <Button className="w-full bg-yellow-600 hover:bg-yellow-700">
+                <FlaskConical className="h-4 w-4 mr-2" />
+                View Examinations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 }
 
-function NurseDashboard({ stats }: { stats: any }) {
+function NurseDashboard({ stats }: { stats: DashboardStats }) {
   return (
     <div className="space-y-8">
       <div>
@@ -688,12 +771,30 @@ function NurseDashboard({ stats }: { stats: any }) {
             </Link>
           </CardContent>
         </Card>
+
+        <Card className="hover:shadow-lg transition-shadow border-teal-200">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <HeartPulse className="h-5 w-5 text-teal-600" />
+              Hospitalisations
+            </CardTitle>
+            <CardDescription>View and manage hospital admissions</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Link href="/dashboard/hospitalisations">
+              <Button className="w-full bg-teal-600 hover:bg-teal-700">
+                <HeartPulse className="h-4 w-4 mr-2" />
+                View Hospitalisations
+              </Button>
+            </Link>
+          </CardContent>
+        </Card>
       </div>
     </div>
   )
 }
 
-function LabTechDashboard({ stats }: { stats: any }) {
+function LabTechDashboard({ stats }: { stats: DashboardStats }) {
   return (
     <div className="space-y-8">
       <div>
@@ -796,7 +897,7 @@ function LabTechDashboard({ stats }: { stats: any }) {
   )
 }
 
-function ReceptionistDashboard({ stats }: { stats: any }) {
+function ReceptionistDashboard({ stats }: { stats: DashboardStats }) {
   return (
     <div className="space-y-8">
       <div>
@@ -898,16 +999,22 @@ function ReceptionistDashboard({ stats }: { stats: any }) {
         <Card className="hover:shadow-lg transition-shadow border-teal-200">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileCheck className="h-5 w-5 text-teal-600" />
-              Check-in/Check-out
+              <HeartPulse className="h-5 w-5 text-teal-600" />
+              Hospitalisations
             </CardTitle>
-            <CardDescription>Manage patient check-ins and check-outs</CardDescription>
+            <CardDescription>Admit and view hospitalised patients</CardDescription>
           </CardHeader>
           <CardContent>
-            <Link href="/dashboard/reception/check-in">
+            <Link href="/dashboard/hospitalisations/admit">
               <Button className="w-full bg-teal-600 hover:bg-teal-700">
-                <FileCheck className="h-4 w-4 mr-2" />
-                Manage Check-ins
+                <HeartPulse className="h-4 w-4 mr-2" />
+                Admit Patient
+              </Button>
+            </Link>
+            <Link href="/dashboard/hospitalisations">
+              <Button className="w-full bg-teal-500 hover:bg-teal-600 mt-2">
+                <HeartPulse className="h-4 w-4 mr-2" />
+                View All Hospitalisations
               </Button>
             </Link>
           </CardContent>
@@ -917,7 +1024,7 @@ function ReceptionistDashboard({ stats }: { stats: any }) {
   )
 }
 
-function CivilAuthorityDashboard({ stats }: { stats: any }) {
+function CivilAuthorityDashboard({ stats }: { stats: DashboardStats }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200">
@@ -1013,7 +1120,7 @@ function CivilAuthorityDashboard({ stats }: { stats: any }) {
   )
 }
 
-function DataManagerDashboard({ stats }: { stats: any }) {
+function DataManagerDashboard({ stats }: { stats: DashboardStats }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <Card className="hover:shadow-lg transition-shadow cursor-pointer border-blue-200">

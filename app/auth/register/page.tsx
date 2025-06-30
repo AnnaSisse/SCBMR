@@ -23,14 +23,14 @@ export default function RegisterPage() {
     phone: "",
     department: "",
   })
-  const [error, setError] = useState("")
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
   const router = useRouter()
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setLoading(true)
-    setError("")
+    setError(null)
 
     if (formData.password !== formData.confirmPassword) {
       setError("Passwords do not match")
@@ -39,13 +39,12 @@ export default function RegisterPage() {
     }
 
     try {
-      const { confirmPassword, ...userData } = formData;
       const response = await fetch('/api/auth/register', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(userData),
+        body: JSON.stringify(formData),
       });
 
       const data = await response.json();
@@ -55,7 +54,7 @@ export default function RegisterPage() {
         localStorage.setItem("currentUser", JSON.stringify(data.user))
         router.push("/dashboard")
       } else {
-        setError(data.message || "Registration failed. Please try again.")
+        setError((data.message || "Registration failed. Please try again.") + (data.error ? `\n[Debug: ${data.error}]` : ""))
       }
 
     } catch (err) {

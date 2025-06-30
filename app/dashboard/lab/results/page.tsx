@@ -32,6 +32,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog"
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 
 export default function LabResultsPage() {
   const [labOrders, setLabOrders] = useState<any[]>([])
@@ -40,21 +41,37 @@ export default function LabResultsPage() {
   const [selectedOrder, setSelectedOrder] = useState<any>(null)
   const [auditTrail, setAuditTrail] = useState<any[]>([])
   const [isAuditTrailVisible, setIsAuditTrailVisible] = useState(false)
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
   const [resultForm, setResultForm] = useState({
-    testName: "",
-    result: "",
-    unit: "",
-    normalRange: "",
+    patient_id: "",
+    test_name: "",
+    result_value: "",
+    result_date: "",
+    doctor_id: "",
     notes: "",
-    isAbnormal: false,
-    image: "",
   })
 
   useEffect(() => {
-    loadLabData()
+    fetchLabResults()
     generateSampleData()
     loadAuditTrail()
   }, [])
+
+  const fetchLabResults = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch("/api/lab-results")
+      if (!res.ok) throw new Error("Failed to fetch lab results")
+      const data = await res.json()
+      setLabResults(data)
+    } catch (err: any) {
+      setError(err.message || "Error")
+    } finally {
+      setLoading(false)
+    }
+  }
 
   const loadLabData = () => {
     const orders = JSON.parse(localStorage.getItem("labOrders") || "[]")
@@ -168,8 +185,43 @@ export default function LabResultsPage() {
     }
   }
 
+  const handleChange = (e: any) => {
+    setResultForm({ ...resultForm, [e.target.name]: e.target.value })
+  }
+
+  const handleSubmit = async (e: any) => {
+    e.preventDefault()
+    setError("")
+    try {
+      const res = await fetch("/api/lab-results", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          patient_id: Number(resultForm.patient_id),
+          test_name: resultForm.test_name,
+          result_value: resultForm.result_value,
+          result_date: resultForm.result_date,
+          doctor_id: Number(resultForm.doctor_id),
+          notes: resultForm.notes,
+        }),
+      })
+      if (!res.ok) throw new Error("Failed to submit lab result")
+      fetchLabResults()
+      setResultForm({
+        patient_id: "",
+        test_name: "",
+        result_value: "",
+        result_date: "",
+        doctor_id: "",
+        notes: "",
+      })
+    } catch (err: any) {
+      setError(err.message || "Error")
+    }
+  }
+
   const enterResult = () => {
-    if (!selectedOrder || !resultForm.testName || !resultForm.result) {
+    if (!selectedOrder || !resultForm.test_name || !resultForm.result_value) {
       alert("Please select an order and fill in required fields")
       return
     }
@@ -179,11 +231,17 @@ export default function LabResultsPage() {
       labOrderId: selectedOrder.id,
       patientName: selectedOrder.patientName,
       patientId: selectedOrder.patientId,
-      ...resultForm,
+      testName: resultForm.test_name,
+      result: resultForm.result_value,
+      unit: "",
+      normalRange: "",
+      notes: resultForm.notes,
+      isAbnormal: false,
+      image: "",
       enteredBy: "Lab Tech Mike Davis",
       enteredAt: new Date().toISOString(),
       verified: false,
-      flagged: resultForm.isAbnormal,
+      flagged: false,
       history: [
         {
           action: "Result Entered",
@@ -208,21 +266,16 @@ export default function LabResultsPage() {
 
     // Reset form
     setResultForm({
-      testName: "",
-      result: "",
-      unit: "",
-      normalRange: "",
+      patient_id: "",
+      test_name: "",
+      result_value: "",
+      result_date: "",
+      doctor_id: "",
       notes: "",
-      isAbnormal: false,
-      image: "",
     })
     setSelectedOrder(null)
 
-    if (resultForm.isAbnormal) {
-      alert("CRITICAL RESULT FLAGGED! Physician has been notified immediately.")
-    } else {
-      alert("Result entered successfully!")
-    }
+    alert("Result entered successfully!")
   }
 
   const verifyResult = (resultId: string) => {
@@ -466,43 +519,43 @@ export default function LabResultsPage() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="testName">Test Name</Label>
+                    <Label htmlFor="test_name">Test Name</Label>
                     <Input
-                      id="testName"
-                      value={resultForm.testName}
-                      onChange={(e) => setResultForm({ ...resultForm, testName: e.target.value })}
+                      id="test_name"
+                      value={resultForm.test_name}
+                      onChange={handleChange}
                       placeholder="e.g., Hemoglobin, Glucose, etc."
                     />
                   </div>
 
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label htmlFor="result">Result Value</Label>
+                      <Label htmlFor="result_value">Result Value</Label>
                       <Input
-                        id="result"
-                        value={resultForm.result}
-                        onChange={(e) => setResultForm({ ...resultForm, result: e.target.value })}
+                        id="result_value"
+                        value={resultForm.result_value}
+                        onChange={handleChange}
                         placeholder="Enter result"
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="unit">Unit</Label>
+                      <Label htmlFor="result_date">Result Date</Label>
                       <Input
-                        id="unit"
-                        value={resultForm.unit}
-                        onChange={(e) => setResultForm({ ...resultForm, unit: e.target.value })}
-                        placeholder="mg/dL, g/dL, etc."
+                        id="result_date"
+                        value={resultForm.result_date}
+                        onChange={handleChange}
+                        type="date"
                       />
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="normalRange">Normal Range</Label>
+                    <Label htmlFor="doctor_id">Doctor ID</Label>
                     <Input
-                      id="normalRange"
-                      value={resultForm.normalRange}
-                      onChange={(e) => setResultForm({ ...resultForm, normalRange: e.target.value })}
-                      placeholder="e.g., 70-100 mg/dL"
+                      id="doctor_id"
+                      value={resultForm.doctor_id}
+                      onChange={handleChange}
+                      placeholder="Enter doctor ID"
                     />
                   </div>
 
@@ -511,7 +564,7 @@ export default function LabResultsPage() {
                     <Textarea
                       id="notes"
                       value={resultForm.notes}
-                      onChange={(e) => setResultForm({ ...resultForm, notes: e.target.value })}
+                      onChange={handleChange}
                       placeholder="Additional observations or comments..."
                       rows={3}
                     />
@@ -542,30 +595,11 @@ export default function LabResultsPage() {
                     )}
                   </div>
 
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="checkbox"
-                      id="isAbnormal"
-                      checked={resultForm.isAbnormal}
-                      onChange={(e) => setResultForm({ ...resultForm, isAbnormal: e.target.checked })}
-                      className="rounded"
-                    />
-                    <Label htmlFor="isAbnormal" className="text-sm font-medium">
-                      Flag as abnormal/critical result
-                    </Label>
-                  </div>
-
                   <div className="flex gap-2">
                     <Button onClick={enterResult} className="flex-1" disabled={!selectedOrder}>
                       <CheckCircle className="h-4 w-4 mr-2" />
                       Enter Result
                     </Button>
-                    {resultForm.isAbnormal && (
-                      <Button variant="destructive" onClick={enterResult} className="flex-1" disabled={!selectedOrder}>
-                        <Flag className="h-4 w-4 mr-2" />
-                        Flag Critical
-                      </Button>
-                    )}
                   </div>
                 </CardContent>
               </Card>

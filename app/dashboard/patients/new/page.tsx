@@ -39,40 +39,41 @@ export default function NewPatientPage() {
     setLoading(true)
     setError("")
 
-    try {
-      // Get existing patients
-      const patients = JSON.parse(localStorage.getItem("patients") || "[]")
+    // Split name into first and last name
+    const nameParts = formData.name.trim().split(" ");
+    const first_name = nameParts[0] || "";
+    const last_name = nameParts.slice(1).join(" ") || "";
 
-      // Check if patient already exists
-      const existingPatient = patients.find((p: any) => p.email === formData.email)
-      if (existingPatient) {
-        setError("Patient with this email already exists")
+    // Prepare payload for backend with correct field mapping
+    const payload = {
+      first_name,
+      last_name,
+      email: formData.email,
+      phone_number: formData.phone,
+      date_of_birth: formData.dateOfBirth,
+      gender: formData.gender,
+      address: formData.address,
+      blood_type: formData.bloodType,
+      emergency_contact_name: formData.emergencyContact,
+      emergency_contact_phone: formData.emergencyPhone,
+      allergies: formData.allergies,
+      medical_history: formData.medicalHistory,
+      insurance: formData.insurance
+    };
+
+    try {
+      const res = await fetch("/api/patients", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      })
+      
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        setError(errorData.message || "Failed to create patient. Please try again.")
         setLoading(false)
         return
       }
-
-      // Calculate age
-      const birthDate = new Date(formData.dateOfBirth)
-      const today = new Date()
-      const age = today.getFullYear() - birthDate.getFullYear()
-
-      // Generate patient ID
-      const patientId = `P${Date.now().toString().slice(-6)}`
-
-      // Create new patient
-      const newPatient = {
-        id: Date.now().toString(),
-        patientId,
-        ...formData,
-        age,
-        createdAt: new Date().toISOString(),
-        lastVisit: null,
-        medicalRecords: [],
-      }
-
-      // Save patient
-      patients.push(newPatient)
-      localStorage.setItem("patients", JSON.stringify(patients))
 
       router.push("/dashboard/patients")
     } catch (err) {
@@ -155,8 +156,8 @@ export default function NewPatientPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="gender">Gender</Label>
-                <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })}>
+                <Label htmlFor="gender">Gender *</Label>
+                <Select value={formData.gender} onValueChange={(value) => setFormData({ ...formData, gender: value })} required>
                   <SelectTrigger>
                     <SelectValue placeholder="Select gender" />
                   </SelectTrigger>
@@ -169,10 +170,11 @@ export default function NewPatientPage() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="bloodType">Blood Type</Label>
+                <Label htmlFor="bloodType">Blood Type *</Label>
                 <Select
                   value={formData.bloodType}
                   onValueChange={(value) => setFormData({ ...formData, bloodType: value })}
+                  required
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select blood type" />
@@ -193,33 +195,36 @@ export default function NewPatientPage() {
 
             {/* Address */}
             <div className="space-y-2">
-              <Label htmlFor="address">Address</Label>
+              <Label htmlFor="address">Address *</Label>
               <Textarea
                 id="address"
                 value={formData.address}
                 onChange={(e) => setFormData({ ...formData, address: e.target.value })}
                 rows={3}
+                required
               />
             </div>
 
             {/* Emergency Contact */}
             <div className="grid md:grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="emergencyContact">Emergency Contact Name</Label>
+                <Label htmlFor="emergencyContact">Emergency Contact Name *</Label>
                 <Input
                   id="emergencyContact"
                   value={formData.emergencyContact}
                   onChange={(e) => setFormData({ ...formData, emergencyContact: e.target.value })}
+                  required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="emergencyPhone">Emergency Contact Phone</Label>
+                <Label htmlFor="emergencyPhone">Emergency Contact Phone *</Label>
                 <Input
                   id="emergencyPhone"
                   type="tel"
                   value={formData.emergencyPhone}
                   onChange={(e) => setFormData({ ...formData, emergencyPhone: e.target.value })}
+                  required
                 />
               </div>
             </div>
@@ -227,34 +232,32 @@ export default function NewPatientPage() {
             {/* Medical Information */}
             <div className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="allergies">Known Allergies</Label>
-                <Textarea
+                <Label htmlFor="allergies">Allergies *</Label>
+                <Input
                   id="allergies"
                   value={formData.allergies}
                   onChange={(e) => setFormData({ ...formData, allergies: e.target.value })}
-                  placeholder="List any known allergies..."
-                  rows={3}
+                  required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="medicalHistory">Medical History</Label>
-                <Textarea
+                <Label htmlFor="medicalHistory">Medical History *</Label>
+                <Input
                   id="medicalHistory"
                   value={formData.medicalHistory}
                   onChange={(e) => setFormData({ ...formData, medicalHistory: e.target.value })}
-                  placeholder="Brief medical history..."
-                  rows={4}
+                  required
                 />
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="insurance">Insurance Information</Label>
+                <Label htmlFor="insurance">Insurance *</Label>
                 <Input
                   id="insurance"
                   value={formData.insurance}
                   onChange={(e) => setFormData({ ...formData, insurance: e.target.value })}
-                  placeholder="Insurance provider and policy number"
+                  required
                 />
               </div>
             </div>

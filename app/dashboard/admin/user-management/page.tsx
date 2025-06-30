@@ -6,12 +6,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Input } from "@/components/ui/input"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import {
   Users,
   UserPlus,
   Search,
-  Filter,
   ArrowLeft,
   Mail,
   Phone,
@@ -23,15 +21,14 @@ import {
   Edit,
   Trash2,
   RefreshCw,
-  AlertCircle,
 } from "lucide-react"
 import Link from "next/link"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { toast } from "sonner"
 
 export default function UserManagementPage() {
-  const [currentUser, setCurrentUser] = useState<any>(null)
-  const [users, setUsers] = useState<any[]>([])
+  const [currentUser, setCurrentUser] = useState<unknown>(null)
+  const [users, setUsers] = useState<unknown[]>([])
   const [searchTerm, setSearchTerm] = useState("")
   const [filterRole, setFilterRole] = useState("all")
   const [filterStatus, setFilterStatus] = useState("all")
@@ -69,7 +66,7 @@ export default function UserManagementPage() {
     }
   }
 
-  const filteredUsers = users.filter((user) => {
+  const filteredUsers = users.filter((user: any) => {
     const matchesSearch = user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       user.department?.toLowerCase().includes(searchTerm.toLowerCase())
@@ -81,7 +78,7 @@ export default function UserManagementPage() {
   })
 
   const updateUserRole = (userId: string, newRole: string) => {
-    const updatedUsers = users.map((user) => {
+    const updatedUsers = users.map((user: any) => {
       if (user.id === userId) {
         return {
           ...user,
@@ -99,7 +96,7 @@ export default function UserManagementPage() {
   }
 
   const updateUserStatus = (userId: string, newStatus: string) => {
-    const updatedUsers = users.map((user) => {
+    const updatedUsers = users.map((user: any) => {
       if (user.id === userId) {
         return {
           ...user,
@@ -118,7 +115,7 @@ export default function UserManagementPage() {
 
   const deleteUser = (userId: string) => {
     if (window.confirm("Are you sure you want to delete this user? This action cannot be undone.")) {
-      const updatedUsers = users.filter((user) => user.id !== userId)
+      const updatedUsers = users.filter((user: any) => user.id !== userId)
       localStorage.setItem("users", JSON.stringify(updatedUsers))
       setUsers(updatedUsers)
       toast.success("User deleted successfully")
@@ -179,7 +176,7 @@ export default function UserManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {users.filter((user) => user.status === "active").length}
+                {users.filter((user: any) => user.status === "active").length}
               </div>
             </CardContent>
           </Card>
@@ -191,7 +188,7 @@ export default function UserManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {users.filter((user) => user.status === "inactive").length}
+                {users.filter((user: any) => user.status === "inactive").length}
               </div>
             </CardContent>
           </Card>
@@ -203,7 +200,7 @@ export default function UserManagementPage() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">
-                {users.filter((user) => user.role === "Admin").length}
+                {users.filter((user: any) => user.role === "Admin").length}
               </div>
             </CardContent>
           </Card>
@@ -267,7 +264,7 @@ export default function UserManagementPage() {
                     <p className="text-gray-600">Try adjusting your search or filters</p>
                   </div>
                 ) : (
-                  filteredUsers.map((user) => (
+                  filteredUsers.map((user: any) => (
                     <div key={user.id} className="p-4 border rounded-lg">
                       <div className="flex items-center justify-between mb-4">
                         <div className="flex items-center gap-4">

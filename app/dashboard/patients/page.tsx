@@ -1,3 +1,6 @@
+"use client"
+
+import { useEffect, useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Download } from "lucide-react"
 import Link from "next/link"
@@ -21,6 +24,29 @@ import {
 } from "lucide-react"
 
 export default function PatientsPage() {
+  const [patients, setPatients] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    fetchPatients()
+  }, [])
+
+  const fetchPatients = async () => {
+    setLoading(true)
+    setError("")
+    try {
+      const res = await fetch("/api/patients")
+      if (!res.ok) throw new Error("Failed to fetch patients")
+      const data = await res.json()
+      setPatients(data.data || [])
+    } catch (err: any) {
+      setError(err.message || "Error")
+    } finally {
+      setLoading(false)
+    }
+  }
+
   return (
     <div>
       <div className="md:flex md:items-center md:justify-between">
@@ -40,10 +66,39 @@ export default function PatientsPage() {
           </Link>
         </div>
       </div>
-
-      {/* Rest of the page content */}
       <div className="mt-6">
-        <p>Patient list and other components will go here.</p>
+        {loading ? (
+          <div>Loading...</div>
+        ) : error ? (
+          <div className="text-red-500">{error}</div>
+        ) : patients.length === 0 ? (
+          <div>No patients found.</div>
+        ) : (
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Name</TableHead>
+                <TableHead>Email</TableHead>
+                <TableHead>Phone</TableHead>
+                <TableHead>Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {patients.map((p) => (
+                <TableRow key={p.patient_id}>
+                  <TableCell>{p.first_name} {p.last_name}</TableCell>
+                  <TableCell>{p.email}</TableCell>
+                  <TableCell>{p.phone_number}</TableCell>
+                  <TableCell>
+                    <Link href={`/dashboard/patients/${p.patient_id}`}>
+                      <Button size="sm" variant="outline">View</Button>
+                    </Link>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        )}
       </div>
     </div>
   )

@@ -25,8 +25,15 @@ import {
   Zap,
 } from "lucide-react"
 
+interface User {
+  id: number;
+  name: string;
+  role: string;
+  // add other fields as needed
+}
+
 export default function HomePage() {
-  const [user, setUser] = useState<any>(null)
+  const [user, setUser] = useState<User | null>(null)
   const [stats, setStats] = useState({
     totalPatients: 0,
     totalDoctors: 0,
@@ -50,7 +57,7 @@ export default function HomePage() {
 
     setStats({
       totalPatients: patients.length,
-      totalDoctors: users.filter((u: any) => u.role === "Doctor").length,
+      totalDoctors: users.filter((u: User) => u.role === "Doctor").length,
       totalAppointments: appointments.length,
       successRate: 98,
     })

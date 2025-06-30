@@ -68,6 +68,12 @@ CREATE TABLE IF NOT EXISTS patients (
     phone_number VARCHAR(20),
     email VARCHAR(100),
     address TEXT,
+    blood_type VARCHAR(5),
+    emergency_contact_name VARCHAR(100),
+    emergency_contact_phone VARCHAR(20),
+    allergies TEXT,
+    medical_history TEXT,
+    insurance VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
@@ -103,6 +109,21 @@ CREATE TABLE IF NOT EXISTS medical_records (
     diagnosis TEXT,
     prescription TEXT,
     visit_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
+);
+
+-- Create Examinations table
+CREATE TABLE IF NOT EXISTS examinations (
+    examination_id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT,
+    doctor_id INT,
+    examination_type VARCHAR(100) NOT NULL,
+    findings TEXT,
+    recommendations TEXT,
+    notes TEXT,
+    examination_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (patient_id) REFERENCES patients(patient_id) ON DELETE CASCADE,
     FOREIGN KEY (doctor_id) REFERENCES doctors(doctor_id) ON DELETE CASCADE
